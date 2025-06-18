@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -431,10 +430,8 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
                   disabled={!canComplete && !isCompleted}
                   className={`w-12 h-12 flex flex-col items-center justify-center text-xs font-bold border-2 ${
                     isCompleted 
-                      ? 'bg-blue-600 text-white hover:bg-blue-700 border-blue-600' 
-                      : canComplete 
-                        ? 'bg-yellow-50 border-yellow-200 hover:bg-yellow-100' 
-                        : 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+                      ? 'bg-yellow-50 border-yellow-200 hover:bg-yellow-100' 
+                      : 'bg-gray-100 border-gray-200 text-gray-400 hover:bg-gray-200'
                   }`}
                 >
                   <div className="flex flex-col gap-0.5 items-center mb-1">

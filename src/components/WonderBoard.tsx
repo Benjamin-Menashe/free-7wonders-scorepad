@@ -178,7 +178,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
               ) : (
                 <div
                   onClick={() => setIsEditingName(true)}
-                  className={`bg-white/20 border border-white/30 rounded px-2 py-1 text-sm font-bold cursor-pointer hover:bg-white/30 transition-colors min-h-[28px] flex items-center w-32 justify-end ${playerNameTextColor}`}
+                  className={`${wonderSide === 'day' ? 'bg-white/20 border border-white/30' : ''} rounded px-2 py-1 text-sm font-bold cursor-pointer hover:bg-white/30 transition-colors min-h-[28px] flex items-center w-32 justify-end ${playerNameTextColor}`}
                 >
                   <span className="truncate text-right w-full">{playerName || 'Add name'}</span>
                 </div>

@@ -306,16 +306,8 @@ const Index = () => {
     }
   };
 
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination || activeTab !== 'all-players') {
-      return;
-    }
-
-    const items = Array.from(allPlayersData);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setAllPlayersData(items);
+  const handleDragEnd = () => {
+    return;
   };
 
   const players = getCurrentPlayers();

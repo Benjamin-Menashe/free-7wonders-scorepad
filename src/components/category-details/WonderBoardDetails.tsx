@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { WonderBoard, WonderSide } from '@/types/game';
@@ -108,7 +109,12 @@ export const WonderBoardDetails: React.FC<WonderBoardDetailsProps> = ({
             
             // Create horizontal lines based on stage index (1, 2, 3, 4 lines)
             const lines = Array.from({ length: index + 1 }, (_, i) => (
-              <div key={i} className="w-6 h-1 bg-yellow-400 rounded-full" />
+              <div 
+                key={i} 
+                className={`w-6 h-1 rounded-full ${
+                  isCompleted ? 'bg-yellow-400' : 'bg-gray-400'
+                }`} 
+              />
             ));
             
             return (
@@ -120,8 +126,8 @@ export const WonderBoardDetails: React.FC<WonderBoardDetailsProps> = ({
                 disabled={!canComplete && !isCompleted}
                 className={`w-12 h-12 flex flex-col items-center justify-center text-xs font-bold border-2 ${
                   isCompleted 
-                    ? 'bg-yellow-50 border-yellow-200 hover:bg-yellow-100' 
-                    : 'bg-gray-100 border-gray-200 text-gray-400 hover:bg-gray-200'
+                    ? 'bg-yellow-100 border-yellow-300 hover:bg-yellow-200' 
+                    : 'bg-gray-100 border-gray-300 text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 <div className="flex flex-col gap-0.5 items-center mb-1">

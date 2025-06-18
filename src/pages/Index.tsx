@@ -8,7 +8,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronUp, ChevronDown, Plus, Copy, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { ChevronUp, ChevronDown, Plus, Copy, Trash2, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import WonderBoard from '@/components/WonderBoard';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
@@ -103,6 +114,17 @@ const Index = () => {
     }
   };
 
+  const addAllBoards = () => {
+    if (activeTab === 'all-players') {
+      setAllPlayersData(allPlayersData.map(p => ({ ...p, isActive: true })));
+      toast({
+        title: "All boards added",
+        description: "All wonder boards have been activated.",
+        duration: 1000,
+      });
+    }
+  };
+
   const addSpecificBoard = (boardType: WonderBoardType) => {
     const currentPlayers = getCurrentPlayers();
     
@@ -125,6 +147,28 @@ const Index = () => {
         p.board === boardType ? { ...p, isActive: true } : p
       ));
     }
+  };
+
+  const startNewGame = () => {
+    if (activeTab === 'all-players') {
+      const initialPlayers: PlayerData[] = wonderBoards.map((board, index) => ({
+        id: `player-${index}`,
+        name: '',
+        board,
+        side: 'day' as WonderSide,
+        scores: createEmptyScores(),
+        isActive: true,
+      }));
+      setAllPlayersData(initialPlayers);
+    } else {
+      setSoloPlayerData([]);
+    }
+    
+    toast({
+      title: "New game started",
+      description: "All scores have been reset and boards cleared.",
+      duration: 1000,
+    });
   };
 
   const toggleExpandAll = () => {
@@ -287,33 +331,45 @@ const Index = () => {
                 {allExpanded ? 'Collapse All' : 'Expand All'}
               </Button>
               
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline"
-                    className="flex items-center gap-2"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add Board
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {removedBoards.length === 0 ? (
-                    <DropdownMenuItem disabled>
-                      No boards removed
+              {removedBoards.length === 0 ? (
+                <Button 
+                  onClick={addAllBoards}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                  disabled={removedBoards.length === 0}
+                >
+                  <Plus className="w-4 h-4" />
+                  All Boards Active
+                </Button>
+              ) : (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="outline"
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Boards
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={addAllBoards}>
+                      Add All Boards
                     </DropdownMenuItem>
-                  ) : (
-                    removedBoards.map(board => (
+                    <DropdownMenuItem disabled className="text-xs font-semibold">
+                      Or select specific:
+                    </DropdownMenuItem>
+                    {removedBoards.map(board => (
                       <DropdownMenuItem 
                         key={board.id}
                         onClick={() => addSpecificBoard(board.board)}
                       >
                         {board.board.charAt(0).toUpperCase() + board.board.slice(1)}
                       </DropdownMenuItem>
-                    ))
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
 
               <Button 
                 onClick={removeEmptyBoards}
@@ -323,6 +379,32 @@ const Index = () => {
                 <Trash2 className="w-4 h-4" />
                 Remove Empty Boards
               </Button>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    New Game
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Start a New Game?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will reset all scores and player names. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={startNewGame}>
+                      Yes, Start New Game
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
 
             {/* Wonder Boards Grid */}
@@ -409,6 +491,32 @@ const Index = () => {
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    New Game
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Start a New Game?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will reset all scores and clear the selected board. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={startNewGame}>
+                      Yes, Start New Game
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
 
             {/* Solo Wonder Board */}

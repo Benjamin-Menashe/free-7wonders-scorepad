@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -125,19 +124,19 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
               {wonderSide === 'day' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
             
-            <div className="font-bold text-xs min-w-0 text-left mr-2">
+            <div className="font-bold text-xs min-w-0 text-left mr-1">
               {wonder.name}
             </div>
 
-            {/* Player Name */}
-            <div className="flex-1 min-w-0">
+            {/* Player Name - moved to right side with input styling */}
+            <div className="flex-1 min-w-0 flex justify-end">
               {isEditingName ? (
                 <form onSubmit={handleNameSubmit} className="flex items-center">
                   <Input
                     value={playerName}
                     onChange={(e) => onNameChange(e.target.value)}
                     placeholder="Player name"
-                    className="bg-white/90 text-gray-800 placeholder:text-gray-500 border-0 h-7 text-sm font-bold text-center"
+                    className="bg-white/90 text-gray-800 placeholder:text-gray-500 border-0 h-7 text-sm font-medium text-right w-32"
                     autoFocus
                     onBlur={() => setIsEditingName(false)}
                   />
@@ -145,10 +144,9 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
               ) : (
                 <div
                   onClick={() => setIsEditingName(true)}
-                  className={`${textColors} text-sm font-bold cursor-pointer hover:bg-black/10 px-2 py-1 rounded flex items-center gap-1 min-h-[28px] justify-center truncate`}
+                  className={`bg-white/20 border border-white/30 rounded px-2 py-1 text-sm font-medium cursor-pointer hover:bg-white/30 transition-colors min-h-[28px] flex items-center w-32 justify-end`}
                 >
-                  <span className="truncate">{playerName || 'Add name'}</span>
-                  <Edit className="w-3 h-3 opacity-50 flex-shrink-0" />
+                  <span className="truncate text-right w-full">{playerName || 'Add name'}</span>
                 </div>
               )}
             </div>

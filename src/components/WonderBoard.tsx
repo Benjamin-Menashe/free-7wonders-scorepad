@@ -30,7 +30,7 @@ const wonderInfo: Record<WonderBoardType, { name: string; description: string }>
 };
 
 const scoreCategories: { key: ScoreCategory; name: string; color: string; icon: string }[] = [
-  { key: 'wonder', name: 'Wonder Board', color: 'text-amber-600', icon: '🔻' },
+  { key: 'wonder', name: 'Wonder Board', color: 'text-amber-600', icon: '🔶' },
   { key: 'wealth', name: 'Wealth', color: 'text-yellow-600', icon: '🪙' },
   { key: 'military', name: 'Military', color: 'text-red-600', icon: '⚔️' },
   { key: 'culture', name: 'Culture', color: 'text-blue-600', icon: '🏛️' },
@@ -78,20 +78,28 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
 
   // Dynamic colors based on day/night
   const headerColors = wonderSide === 'day' 
-    ? 'bg-gradient-to-r from-sky-400 to-yellow-400' 
-    : 'bg-gradient-to-r from-slate-800 to-black';
+    ? 'bg-gradient-to-r from-white to-sky-300' 
+    : 'bg-gradient-to-r from-blue-900 to-black';
+    
+  const borderColors = wonderSide === 'day' 
+    ? 'border-black' 
+    : 'border-white';
+    
+  const textColors = wonderSide === 'day' 
+    ? 'text-black' 
+    : 'text-white';
 
   return (
-    <Card className="border-2 border-amber-200 shadow-lg">
+    <Card className={`border-2 shadow-lg ${borderColors}`}>
       {/* Compact Header - Always Visible */}
-      <div className={`p-4 text-white ${headerColors}`}>
+      <div className={`p-4 ${headerColors} ${textColors}`}>
         <div className="flex items-center justify-between gap-2">
           {/* Day/Night Toggle */}
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onSideChange(wonderSide === 'day' ? 'night' : 'day')}
-            className="text-white hover:bg-white/20 p-1 h-auto flex-shrink-0"
+            className={`${textColors} hover:bg-black/20 p-1 h-auto flex-shrink-0`}
           >
             {wonderSide === 'day' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
@@ -114,7 +122,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
             variant="ghost"
             size="sm"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-white hover:bg-white/20 p-1 h-auto flex-shrink-0"
+            className={`${textColors} hover:bg-black/20 p-1 h-auto flex-shrink-0`}
           >
             {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
@@ -129,7 +137,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
             variant="ghost"
             size="sm"
             onClick={onRemove}
-            className="text-white hover:bg-red-500/50 p-1 h-auto flex-shrink-0"
+            className={`${textColors} hover:bg-red-500/50 p-1 h-auto flex-shrink-0`}
           >
             <X className="w-4 h-4" />
           </Button>

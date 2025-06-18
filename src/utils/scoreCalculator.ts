@@ -5,7 +5,8 @@ export const calculateTotalScore = (scores: Record<ScoreCategory, number> | {}):
   if (!scores || Object.keys(scores).length === 0) {
     return 0;
   }
-  return Object.values(scores as Record<ScoreCategory, number>).reduce((total, score) => total + (score || 0), 0);
+  const typedScores = scores as Record<ScoreCategory, number>;
+  return Object.values(typedScores).reduce((total, score) => total + (score || 0), 0);
 };
 
 export const calculateCategoryTotal = (
@@ -16,7 +17,8 @@ export const calculateCategoryTotal = (
     if (!playerScores || Object.keys(playerScores).length === 0) {
       return total;
     }
-    return total + ((playerScores as Record<ScoreCategory, number>)[category] || 0);
+    const typedPlayerScores = playerScores as Record<ScoreCategory, number>;
+    return total + (typedPlayerScores[category] || 0);
   }, 0);
 };
 

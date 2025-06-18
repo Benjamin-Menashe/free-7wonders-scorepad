@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, X, Sun, Moon, Minus, Plus, Edit } from 'lucide-react';
+import { ChevronDown, ChevronUp, X, Sun, Moon, Minus, Plus } from 'lucide-react';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
 import { calculateTotalScore } from '@/utils/scoreCalculator';
 import { scoreCategories } from './ScoreCategories';
@@ -104,11 +105,12 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
     setIsExpanded(!isExpanded);
   };
 
-  const effectiveExpanded = forceExpanded !== undefined ? forceExpanded : isExpanded;
+  const effectiveExpanded = isExpanded;
   const headerColors = wonderSide === 'day' 
     ? 'bg-gradient-to-r from-white via-blue-50 to-blue-100' 
     : 'bg-gradient-to-r from-slate-800 via-slate-900 to-black';
   const textColors = wonderSide === 'day' ? 'text-slate-800' : 'text-white';
+  const playerNameTextColor = wonderSide === 'day' ? 'text-black' : 'text-white';
 
   return (
     <Card className="shadow-lg rounded-lg overflow-hidden">
@@ -136,7 +138,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                     value={playerName}
                     onChange={(e) => onNameChange(e.target.value)}
                     placeholder="Player name"
-                    className="bg-white/90 text-gray-800 placeholder:text-gray-500 border-0 h-7 text-sm font-medium text-right w-32"
+                    className={`bg-white/90 ${playerNameTextColor} placeholder:text-gray-500 border-0 h-7 text-sm font-bold text-right w-32`}
                     autoFocus
                     onBlur={() => setIsEditingName(false)}
                   />
@@ -144,7 +146,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
               ) : (
                 <div
                   onClick={() => setIsEditingName(true)}
-                  className={`bg-white/20 border border-white/30 rounded px-2 py-1 text-sm font-medium cursor-pointer hover:bg-white/30 transition-colors min-h-[28px] flex items-center w-32 justify-end`}
+                  className={`bg-white/20 border border-white/30 rounded px-2 py-1 text-sm font-bold cursor-pointer hover:bg-white/30 transition-colors min-h-[28px] flex items-center w-32 justify-end ${playerNameTextColor}`}
                 >
                   <span className="truncate text-right w-full">{playerName || 'Add name'}</span>
                 </div>

@@ -409,6 +409,7 @@ const Index = () => {
                 <Button 
                   onClick={addAllBoards}
                   variant="outline"
+                  size="sm"
                   className="flex items-center gap-2"
                   disabled={removedBoards.length === 0}
                 >
@@ -420,6 +421,7 @@ const Index = () => {
                   <DropdownMenuTrigger asChild>
                     <Button 
                       variant="outline"
+                      size="sm"
                       className="flex items-center gap-2"
                     >
                       <Plus className="w-4 h-4" />
@@ -448,6 +450,7 @@ const Index = () => {
               <Button 
                 onClick={removeEmptyBoards}
                 variant="outline"
+                size="sm"
                 className="flex items-center gap-2"
               >
                 <Trash2 className="w-4 h-4" />

@@ -1,16 +1,6 @@
 
 import { ScoreCategory } from '@/types/game';
 
-const createEmptyScores = (): Record<ScoreCategory, number> => ({
-  wonder: 0,
-  wealth: 0,
-  military: 0,
-  culture: 0,
-  commerce: 0,
-  science: 0,
-  guilds: 0
-});
-
 export const calculateTotalScore = (scores: Record<ScoreCategory, number> | {}): number => {
   if (!scores || Object.keys(scores).length === 0) {
     return 0;
@@ -50,5 +40,5 @@ export const getWinner = (
     }
   });
   
-  return winner.score >= 0 ? winner : null;
+  return winner.score > 0 ? winner : null;
 };

@@ -79,11 +79,6 @@ const Index = () => {
   const sortedActivePlayers = activePlayers
     .sort((a, b) => calculateTotalScore(b.scores) - calculateTotalScore(a.scores));
 
-  const winner = getWinner(
-    playingPlayers.map(p => ({ id: p.id, name: p.name })),
-    Object.fromEntries(playingPlayers.map(p => [p.id, p.scores]))
-  );
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
       <div className="container mx-auto px-4 py-8">
@@ -96,19 +91,6 @@ const Index = () => {
             Track scores for the legendary board game of ancient civilizations
           </p>
         </div>
-
-        {/* Winner Announcement */}
-        {winner && (
-          <div className="mb-8 text-center">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-6 py-3 rounded-full shadow-lg">
-              <Trophy className="w-6 h-6" />
-              <span className="font-bold text-lg">
-                {winner.name} leads with {winner.score} points!
-              </span>
-              <Trophy className="w-6 h-6" />
-            </div>
-          </div>
-        )}
 
         {/* Wonder Boards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -127,31 +109,6 @@ const Index = () => {
             />
           ))}
         </div>
-
-        {/* Active Players Summary */}
-        {playingPlayers.length > 0 && (
-          <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Current Standings</h3>
-            <div className="space-y-2">
-              {playingPlayers
-                .sort((a, b) => calculateTotalScore(b.scores) - calculateTotalScore(a.scores))
-                .map((player, index) => (
-                  <div key={player.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                    <div className="flex items-center gap-3">
-                      <span className="font-bold text-lg">#{index + 1}</span>
-                      <span className="font-medium">{player.name}</span>
-                      <span className="text-sm text-gray-600">
-                        ({player.board} - {player.side})
-                      </span>
-                    </div>
-                    <span className="font-bold text-xl text-amber-600">
-                      {calculateTotalScore(player.scores)} pts
-                    </span>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

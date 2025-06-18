@@ -39,6 +39,14 @@ interface CultureCard {
   score: number;
 }
 
+interface CommerceCard {
+  id: string;
+  name: string;
+  score: number;
+  description: string;
+  step: number;
+}
+
 const wonderInfo: Record<WonderBoardType, { name: string; description: string }> = {
   alexandria: { name: 'Alexandria', description: 'The Great Library' },
   babylon: { name: 'Babylon', description: 'The Hanging Gardens' },
@@ -87,6 +95,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
     compass: 0
   });
   const [cultureCards, setCultureCards] = useState<CultureCard[]>([]);
+  const [commerceCards, setCommerceCards] = useState<CommerceCard[]>([]);
   
   const [boardStages, setBoardStages] = useState<boolean[]>([]);
   
@@ -283,6 +292,8 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                     onScienceSymbolsChange={setScienceSymbols}
                     cultureCards={cultureCards}
                     onCultureCardsChange={setCultureCards}
+                    commerceCards={commerceCards}
+                    onCommerceCardsChange={setCommerceCards}
                     wonderBoard={board}
                     wonderSide={wonderSide}
                     boardStages={boardStages}

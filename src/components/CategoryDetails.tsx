@@ -20,6 +20,8 @@ interface CategoryDetailsProps {
   wonderSide?: WonderSide;
   boardStages?: boolean[];
   onBoardStagesChange?: (stages: boolean[]) => void;
+  commerceCards?: CommerceCard[];
+  onCommerceCardsChange?: (cards: CommerceCard[]) => void;
 }
 
 interface MilitaryTokens {
@@ -39,6 +41,42 @@ interface CultureCard {
   id: string;
   score: number;
 }
+
+interface CommerceCard {
+  id: string;
+  name: string;
+  score: number;
+  description: string;
+  step: number;
+}
+
+const commerceCardsList = [
+  {
+    name: 'Lighthouse',
+    description: '1 point for each yellow card you own',
+    step: 1
+  },
+  {
+    name: 'Haven',
+    description: '1 point for each brown card you own',
+    step: 1
+  },
+  {
+    name: 'Chamber of Commerce',
+    description: '2 points for each gray card you own',
+    step: 2
+  },
+  {
+    name: 'Ludus',
+    description: '1 point for each red card you own',
+    step: 1
+  },
+  {
+    name: 'Arena',
+    description: '1 point for each stage you constructed',
+    step: 1
+  }
+];
 
 const boardStagePoints: Record<WonderBoard, Record<WonderSide, number[]>> = {
   alexandria: {
@@ -85,7 +123,9 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
   wonderBoard = 'alexandria',
   wonderSide = 'day',
   boardStages = [],
-  onBoardStagesChange
+  onBoardStagesChange,
+  commerceCards = [],
+  onCommerceCardsChange
 }) => {
   const calculateWealthScore = (coinCount: number) => {
     const score = Math.floor(coinCount / 3);
@@ -111,6 +151,12 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
   };
 
   const calculateCultureScore = (cards: CultureCard[]) => {
+    const score = cards.reduce((sum, card) => sum + card.score, 0);
+    onScoreChange(score);
+    return score;
+  };
+
+  const calculateCommerceScore = (cards: CommerceCard[]) => {
     const score = cards.reduce((sum, card) => sum + card.score, 0);
     onScoreChange(score);
     return score;
@@ -154,6 +200,41 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
     if (card) {
       const newScore = Math.max(0, card.score + delta);
       updateCultureCard(cardId, newScore);
+    }
+  };
+
+  const addCommerceCard = (cardTemplate: typeof commerceCardsList[0]) => {
+    const newCard: CommerceCard = { 
+      id: `${cardTemplate.name}-${Date.now()}`, 
+      name: cardTemplate.name,
+      score: 0,
+      description: cardTemplate.description,
+      step: cardTemplate.step
+    };
+    const newCards = [...commerceCards, newCard];
+    onCommerceCardsChange?.(newCards);
+    calculateCommerceScore(newCards);
+  };
+
+  const removeCommerceCard = (cardId: string) => {
+    const newCards = commerceCards.filter(card => card.id !== cardId);
+    onCommerceCardsChange?.(newCards);
+    calculateCommerceScore(newCards);
+  };
+
+  const updateCommerceCard = (cardId: string, score: number) => {
+    const newCards = commerceCards.map(card => 
+      card.id === cardId ? { ...card, score } : card
+    );
+    onCommerceCardsChange?.(newCards);
+    calculateCommerceScore(newCards);
+  };
+
+  const adjustCommerceCard = (cardId: string, delta: number) => {
+    const card = commerceCards.find(c => c.id === cardId);
+    if (card) {
+      const newScore = Math.max(0, card.score + delta);
+      updateCommerceCard(cardId, newScore);
     }
   };
 
@@ -397,6 +478,88 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
     </div>
   );
 
+  const renderCommerceDetails = () => (
+    <div className="p-3 bg-white border-t">
+      <div className="space-y-4">
+        {/* Available cards to add */}
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-gray-700">Available Cards:</h4>
+          <div className="grid grid-cols-1 gap-2">
+            {commerceCardsList.map(cardTemplate => {
+              const isAdded = commerceCards.some(card => card.name === cardTemplate.name);
+              return (
+                <Button
+                  key={cardTemplate.name}
+                  onClick={() => addCommerceCard(cardTemplate)}
+                  disabled={isAdded}
+                  variant="outline"
+                  size="sm"
+                  className={`text-left justify-start h-auto p-2 ${isAdded ? 'opacity-50' : ''}`}
+                >
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium">{cardTemplate.name}</span>
+                    <span className="text-xs text-gray-500">{cardTemplate.description}</span>
+                  </div>
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Added cards */}
+        {commerceCards.length > 0 && (
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium text-gray-700">Your Cards:</h4>
+            {commerceCards.map(card => (
+              <div key={card.id} className="border rounded-lg p-3 bg-gray-50">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex-1">
+                    <div className="font-medium text-sm">{card.name}</div>
+                    <div className="text-xs text-gray-600">{card.description}</div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeCommerceCard(card.id)}
+                    className="p-1 h-6 w-6 hover:bg-red-200 ml-2"
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
+                
+                <div className="flex items-center justify-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => adjustCommerceCard(card.id, -card.step)}
+                    className="p-1 h-6 w-6 hover:bg-gray-200"
+                  >
+                    <Minus className="w-3 h-3" />
+                  </Button>
+                  <Input
+                    type="number"
+                    value={card.score || ''}
+                    onChange={(e) => updateCommerceCard(card.id, parseInt(e.target.value) || 0)}
+                    className="w-20 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    min="0"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => adjustCommerceCard(card.id, card.step)}
+                    className="p-1 h-6 w-6 hover:bg-gray-200"
+                  >
+                    <Plus className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   const renderBoardDetails = () => {
     if (!wonderBoard || !wonderSide) return null;
     
@@ -459,13 +622,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
     case 'wonder':
       return renderBoardDetails();
     case 'commerce':
-      return (
-        <div className="p-3 bg-white border-t flex justify-center">
-          <p className="text-sm text-gray-600">
-            Points from yellow commercial structures
-          </p>
-        </div>
-      );
+      return renderCommerceDetails();
     case 'guilds':
       return (
         <div className="p-3 bg-white border-t flex justify-center">

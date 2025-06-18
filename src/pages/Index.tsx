@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -157,13 +158,13 @@ const Index = () => {
       summary += `Wonder: ${player.board.charAt(0).toUpperCase() + player.board.slice(1)} (${player.side === 'day' ? '☀️ Day' : '🌙 Night'} side)\n`;
       summary += `Total Score: ${calculateTotalScore(player.scores)} points\n\n`;
       summary += `Score Breakdown:\n`;
-      summary += `🏛️ Wonder: ${player.scores.wonder}\n`;
-      summary += `💰 Wealth: ${player.scores.wealth}\n`;
+      summary += `🔶 Wonder: ${player.scores.wonder}\n`;
+      summary += `🪙 Wealth: ${player.scores.wealth}\n`;
       summary += `⚔️ Military: ${player.scores.military}\n`;
-      summary += `🎭 Culture: ${player.scores.culture}\n`;
-      summary += `🏪 Commerce: ${player.scores.commerce}\n`;
-      summary += `🔬 Science: ${player.scores.science}\n`;
-      summary += `🏛️ Guilds: ${player.scores.guilds}\n`;
+      summary += `🏛️ Culture: ${player.scores.culture}\n`;
+      summary += `🏺 Commerce: ${player.scores.commerce}\n`;
+      summary += `📖 Science: ${player.scores.science}\n`;
+      summary += `👥 Guilds: ${player.scores.guilds}\n`;
     } else {
       summary += `Final Standings:\n`;
       sortedPlayers.forEach((player, index) => {
@@ -174,8 +175,8 @@ const Index = () => {
       summary += `\nDetailed Scores:\n`;
       sortedPlayers.forEach(player => {
         summary += `\n${player.name} (${player.board.charAt(0).toUpperCase() + player.board.slice(1)}):\n`;
-        summary += `🏛️ Wonder: ${player.scores.wonder} | 💰 Wealth: ${player.scores.wealth} | ⚔️ Military: ${player.scores.military}\n`;
-        summary += `🎭 Culture: ${player.scores.culture} | 🏪 Commerce: ${player.scores.commerce} | 🔬 Science: ${player.scores.science} | 🏛️ Guilds: ${player.scores.guilds}\n`;
+        summary += `🔶 Wonder: ${player.scores.wonder} | 🪙 Wealth: ${player.scores.wealth} | ⚔️ Military: ${player.scores.military}\n`;
+        summary += `🏛️ Culture: ${player.scores.culture} | 🏺 Commerce: ${player.scores.commerce} | 📖 Science: ${player.scores.science} | 👥 Guilds: ${player.scores.guilds}\n`;
       });
     }
 

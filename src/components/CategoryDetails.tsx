@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Minus, X } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Plus, Minus, X, ChevronDown } from 'lucide-react';
 import { ScoreCategory, WonderBoard, WonderSide } from '@/types/game';
 
 interface CategoryDetailsProps {
@@ -483,37 +483,32 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
   const renderCommerceDetails = () => (
     <div className="p-3 bg-white border-t">
       <div className="space-y-4">
-        {/* Available cards dropdown */}
+        {/* Available cards dropdown button */}
         <div className="space-y-2">
           <h4 className="text-sm font-medium text-gray-700">Add Card:</h4>
-          <Select onValueChange={(cardName) => {
-            const cardTemplate = commerceCardsList.find(card => card.name === cardName);
-            if (cardTemplate) {
-              addCommerceCard(cardTemplate);
-            }
-          }}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select a commerce card..." />
-            </SelectTrigger>
-            <SelectContent className="bg-white border shadow-lg z-50">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-full justify-between">
+                Select a commerce card...
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-full bg-white border shadow-lg z-50">
               {commerceCardsList.map(cardTemplate => {
                 const isAdded = commerceCards.some(card => card.name === cardTemplate.name);
                 return (
-                  <SelectItem 
-                    key={cardTemplate.name} 
-                    value={cardTemplate.name}
+                  <DropdownMenuItem
+                    key={cardTemplate.name}
+                    onClick={() => !isAdded && addCommerceCard(cardTemplate)}
                     disabled={isAdded}
-                    className={`${isAdded ? 'opacity-50' : ''}`}
+                    className={`${isAdded ? 'opacity-50' : ''} cursor-pointer`}
                   >
-                    <div className="flex flex-col items-start">
-                      <span className="font-medium">{cardTemplate.name}</span>
-                      <span className="text-xs text-gray-500">{cardTemplate.description}</span>
-                    </div>
-                  </SelectItem>
+                    {cardTemplate.name}
+                  </DropdownMenuItem>
                 );
               })}
-            </SelectContent>
-          </Select>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Added cards */}
@@ -522,47 +517,44 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
             <h4 className="text-sm font-medium text-gray-700">Your Cards:</h4>
             {commerceCards.map(card => (
               <div key={card.id} className="border rounded-lg p-3 bg-gray-50">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex-1">
-                    <div className="font-medium text-sm">{card.name}</div>
-                    <div className="text-xs text-gray-600">{card.description}</div>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="font-medium text-sm">{card.name}</div>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => adjustCommerceCard(card.id, -card.step)}
+                      className="p-1 h-6 w-6 hover:bg-gray-200"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </Button>
+                    <Input
+                      type="number"
+                      value={card.score || ''}
+                      onChange={(e) => updateCommerceCard(card.id, parseInt(e.target.value) || 0)}
+                      placeholder="Points"
+                      className="w-16 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      min="0"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => adjustCommerceCard(card.id, card.step)}
+                      className="p-1 h-6 w-6 hover:bg-gray-200"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeCommerceCard(card.id)}
+                      className="p-1 h-6 w-6 hover:bg-red-200 ml-1"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeCommerceCard(card.id)}
-                    className="p-1 h-6 w-6 hover:bg-red-200 ml-2"
-                  >
-                    <X className="w-3 h-3" />
-                  </Button>
                 </div>
-                
-                <div className="flex items-center justify-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => adjustCommerceCard(card.id, -card.step)}
-                    className="p-1 h-6 w-6 hover:bg-gray-200"
-                  >
-                    <Minus className="w-3 h-3" />
-                  </Button>
-                  <Input
-                    type="number"
-                    value={card.score || ''}
-                    onChange={(e) => updateCommerceCard(card.id, parseInt(e.target.value) || 0)}
-                    placeholder="Points"
-                    className="w-20 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    min="0"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => adjustCommerceCard(card.id, card.step)}
-                    className="p-1 h-6 w-6 hover:bg-gray-200"
-                  >
-                    <Plus className="w-3 h-3" />
-                  </Button>
-                </div>
+                <div className="text-xs text-gray-600 mt-1">{card.description}</div>
               </div>
             ))}
           </div>
@@ -652,3 +644,5 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
       );
   }
 };
+
+export { CategoryDetails };

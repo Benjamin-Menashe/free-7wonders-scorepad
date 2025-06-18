@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -154,8 +153,7 @@ const Index = () => {
     
     if (activeTab === 'solo') {
       const player = sortedPlayers[0];
-      summary += `Solo Player: ${player.name}\n`;
-      summary += `Wonder: ${player.board.charAt(0).toUpperCase() + player.board.slice(1)} (${player.side === 'day' ? '☀️ Day' : '🌙 Night'} side)\n`;
+      summary += `${player.name} - ${player.board.charAt(0).toUpperCase() + player.board.slice(1)} (${player.side === 'day' ? '☀️' : '🌙'})\n`;
       summary += `Total Score: ${calculateTotalScore(player.scores)} points\n\n`;
       summary += `Score Breakdown:\n`;
       summary += `🔶 Wonder: ${player.scores.wonder}\n`;
@@ -180,7 +178,8 @@ const Index = () => {
       });
     }
 
-    summary += `\n--- Created with 7 Wonders Digital Scorepad ---`;
+    summary += `\n--- Created with 7 Wonders Digital Scorepad by Benjamin Menashe ---\n`;
+    summary += `https://7wonders.lovable.app`;
 
     navigator.clipboard.writeText(summary).then(() => {
       toast({

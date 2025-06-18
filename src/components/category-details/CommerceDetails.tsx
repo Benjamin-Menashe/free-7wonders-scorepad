@@ -21,13 +21,8 @@ interface CommerceDetailsProps {
 
 const commerceCardsList = [
   {
-    name: 'Lighthouse',
-    description: '1 point for each yellow card you own',
-    step: 1
-  },
-  {
-    name: 'Haven',
-    description: '1 point for each brown card you own',
+    name: 'Arena',
+    description: '1 point for each stage you constructed',
     step: 1
   },
   {
@@ -36,13 +31,18 @@ const commerceCardsList = [
     step: 2
   },
   {
-    name: 'Ludus',
-    description: '1 point for each red card you own',
+    name: 'Haven',
+    description: '1 point for each brown card you own',
     step: 1
   },
   {
-    name: 'Arena',
-    description: '1 point for each stage you constructed',
+    name: 'Lighthouse',
+    description: '1 point for each yellow card you own',
+    step: 1
+  },
+  {
+    name: 'Ludus',
+    description: '1 point for each red card you own',
     step: 1
   }
 ];

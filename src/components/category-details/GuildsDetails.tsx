@@ -22,8 +22,8 @@ interface GuildsDetailsProps {
 
 const guildsCardsList = [
   {
-    name: 'Workers Guild',
-    description: '1 point for each brown card your neighbors own',
+    name: 'Builders Guild',
+    description: '1 point for each stage you and your neighbors constructed',
     step: 1
   },
   {
@@ -32,18 +32,14 @@ const guildsCardsList = [
     step: 2
   },
   {
+    name: 'Decorators Guild',
+    description: '7 points if you constructed all your stages',
+    step: 7,
+    maxScore: 7
+  },
+  {
     name: 'Magistrates Guild',
     description: '1 point for each blue card your neighbors own',
-    step: 1
-  },
-  {
-    name: 'Traders Guild',
-    description: '1 point for each yellow card your neighbors own',
-    step: 1
-  },
-  {
-    name: 'Spies Guild',
-    description: '1 point for each red card your neighbors own',
     step: 1
   },
   {
@@ -57,15 +53,19 @@ const guildsCardsList = [
     step: 1
   },
   {
-    name: 'Builders Guild',
-    description: '1 point for each stage you and your neighbors constructed',
+    name: 'Spies Guild',
+    description: '1 point for each red card your neighbors own',
     step: 1
   },
   {
-    name: 'Decorators Guild',
-    description: '7 points if you constructed all your stages',
-    step: 7,
-    maxScore: 7
+    name: 'Traders Guild',
+    description: '1 point for each yellow card your neighbors own',
+    step: 1
+  },
+  {
+    name: 'Workers Guild',
+    description: '1 point for each brown card your neighbors own',
+    step: 1
   }
 ];
 

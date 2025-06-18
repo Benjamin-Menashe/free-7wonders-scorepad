@@ -23,7 +23,7 @@ export const calculateCategoryTotal = (
 };
 
 export const getWinner = (
-  players: Array<{ id: string; name: string; scores: Record<ScoreCategory, number> }>,
+  players: Array<{ id: string; name: string; scores: Record<ScoreCategory, number> | {} }>,
 ): { playerId: string; name: string; score: number } | null => {
   if (players.length === 0) return null;
   

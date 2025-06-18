@@ -271,6 +271,26 @@ const Index = () => {
     }
   };
 
+  const resetScores = () => {
+    if (activeTab === 'all-players') {
+      setAllPlayersData(allPlayersData.map(p => ({
+        ...p,
+        scores: createEmptyScores()
+      })));
+    } else {
+      setSoloPlayerData(soloPlayerData.map(p => ({
+        ...p,
+        scores: createEmptyScores()
+      })));
+    }
+    
+    toast({
+      title: "Scores reset",
+      description: "All scores have been reset to zero.",
+      duration: 1000,
+    });
+  };
+
   const players = getCurrentPlayers();
   const activePlayers = players.filter(p => p.isActive);
   const playingPlayers = activePlayers.filter(p => p.name.trim() !== '');
@@ -320,7 +340,7 @@ const Index = () => {
           </TabsList>
 
           <TabsContent value="all-players" className="mt-6">
-            {/* Control Buttons for All Players */}
+            {/* Top Control Buttons for All Players */}
             <div className="flex flex-wrap justify-center gap-3 mb-6">
               <Button 
                 onClick={toggleExpandAll}
@@ -330,7 +350,61 @@ const Index = () => {
                 {allExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 {allExpanded ? 'Collapse All' : 'Expand All'}
               </Button>
-              
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="outline"
+                    className="flex items-center gap-2 bg-red-50 hover:bg-red-100 border-red-200 text-red-700"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    New Game
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Start a New Game?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Choose how you want to reset the game. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={resetScores}
+                      className="bg-amber-600 hover:bg-amber-700"
+                    >
+                      Reset Scores Only
+                    </AlertDialogAction>
+                    <AlertDialogAction onClick={startNewGame}>
+                      Complete Reset
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+
+            {/* Wonder Boards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {sortedActivePlayers.map(player => (
+                <WonderBoard
+                  key={player.id}
+                  board={player.board}
+                  playerName={player.name}
+                  wonderSide={player.side}
+                  scores={player.scores}
+                  onNameChange={(name) => updatePlayerName(player.id, name)}
+                  onSideChange={(side) => updatePlayerSide(player.id, side)}
+                  onScoreChange={(category, value) => updatePlayerScore(player.id, category, value)}
+                  onRemove={() => removePlayer(player.id)}
+                  isEmpty={player.name.trim() === ''}
+                  forceExpanded={allExpanded}
+                />
+              ))}
+            </div>
+
+            {/* Bottom Control Buttons for All Players */}
+            <div className="flex flex-wrap justify-center gap-3 mt-6">
               {removedBoards.length === 0 ? (
                 <Button 
                   onClick={addAllBoards}
@@ -379,51 +453,6 @@ const Index = () => {
                 <Trash2 className="w-4 h-4" />
                 Remove Empty Boards
               </Button>
-
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button 
-                    variant="outline"
-                    className="flex items-center gap-2"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                    New Game
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Start a New Game?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will reset all scores and player names. This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={startNewGame}>
-                      Yes, Start New Game
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-
-            {/* Wonder Boards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {sortedActivePlayers.map(player => (
-                <WonderBoard
-                  key={player.id}
-                  board={player.board}
-                  playerName={player.name}
-                  wonderSide={player.side}
-                  scores={player.scores}
-                  onNameChange={(name) => updatePlayerName(player.id, name)}
-                  onSideChange={(side) => updatePlayerSide(player.id, side)}
-                  onScoreChange={(category, value) => updatePlayerScore(player.id, category, value)}
-                  onRemove={() => removePlayer(player.id)}
-                  isEmpty={player.name.trim() === ''}
-                  forceExpanded={allExpanded}
-                />
-              ))}
             </div>
 
             {/* Copy Game Summary Buttons */}
@@ -450,7 +479,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="solo" className="mt-6">
-            {/* Control Buttons for Solo */}
+            {/* Top Control Buttons for Solo */}
             <div className="flex flex-wrap justify-center gap-3 mb-6">
               {activePlayers.length > 0 && (
                 <Button 
@@ -462,41 +491,12 @@ const Index = () => {
                   {allExpanded ? 'Collapse All' : 'Expand All'}
                 </Button>
               )}
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline"
-                    className="flex items-center gap-2"
-                    disabled={activePlayers.length >= 1}
-                  >
-                    <Plus className="w-4 h-4" />
-                    {activePlayers.length === 0 ? 'Add Board' : 'Board Selected'}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {availableBoards.length === 0 ? (
-                    <DropdownMenuItem disabled>
-                      {activePlayers.length >= 1 ? 'Only one board allowed in Solo mode' : 'No boards available'}
-                    </DropdownMenuItem>
-                  ) : (
-                    availableBoards.map(board => (
-                      <DropdownMenuItem 
-                        key={board}
-                        onClick={() => addSpecificBoard(board)}
-                      >
-                        {board.charAt(0).toUpperCase() + board.slice(1)}
-                      </DropdownMenuItem>
-                    ))
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
 
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button 
                     variant="outline"
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 bg-red-50 hover:bg-red-100 border-red-200 text-red-700"
                   >
                     <RotateCcw className="w-4 h-4" />
                     New Game
@@ -506,13 +506,19 @@ const Index = () => {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Start a New Game?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This will reset all scores and clear the selected board. This action cannot be undone.
+                      Choose how you want to reset the game. This action cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
-                  <AlertDialogFooter>
+                  <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={resetScores}
+                      className="bg-amber-600 hover:bg-amber-700"
+                    >
+                      Reset Scores Only
+                    </AlertDialogAction>
                     <AlertDialogAction onClick={startNewGame}>
-                      Yes, Start New Game
+                      Complete Reset
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -545,6 +551,38 @@ const Index = () => {
                 </div>
               </div>
             )}
+
+            {/* Bottom Control Buttons for Solo */}
+            <div className="flex flex-wrap justify-center gap-3 mt-6">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline"
+                    className="flex items-center gap-2"
+                    disabled={activePlayers.length >= 1}
+                  >
+                    <Plus className="w-4 h-4" />
+                    {activePlayers.length === 0 ? 'Add Board' : 'Board Selected'}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {availableBoards.length === 0 ? (
+                    <DropdownMenuItem disabled>
+                      {activePlayers.length >= 1 ? 'Only one board allowed in Solo mode' : 'No boards available'}
+                    </DropdownMenuItem>
+                  ) : (
+                    availableBoards.map(board => (
+                      <DropdownMenuItem 
+                        key={board}
+                        onClick={() => addSpecificBoard(board)}
+                      >
+                        {board.charAt(0).toUpperCase() + board.slice(1)}
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
 
             {/* Copy Game Summary Button for Solo */}
             {playingPlayers.length > 0 && (

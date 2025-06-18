@@ -438,9 +438,7 @@ const Index = () => {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            className={`transition-transform ${
-                              snapshot.isDragging ? 'rotate-2 scale-105 z-50' : ''
-                            }`}
+                            className={snapshot.isDragging ? 'z-50' : ''}
                             style={{
                               ...provided.draggableProps.style,
                             }}

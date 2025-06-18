@@ -83,6 +83,14 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
     calculateCultureScore(newCards);
   };
 
+  const adjustCultureCard = (cardId: string, delta: number) => {
+    const card = cultureCards.find(c => c.id === cardId);
+    if (card) {
+      const newScore = Math.max(0, card.score + delta);
+      updateCultureCard(cardId, newScore);
+    }
+  };
+
   const renderWealthDetails = () => (
     <div className="p-3 bg-white border-t space-y-3">
       <div className="flex items-center gap-3">
@@ -122,32 +130,45 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
 
   const renderMilitaryDetails = () => (
     <div className="p-3 bg-white border-t space-y-3">
-      <div className="grid grid-cols-2 gap-2">
+      <div className="space-y-2">
         {[
-          { type: 'minusOne' as keyof MilitaryTokens, value: -1, color: 'bg-red-400' },
-          { type: 'one' as keyof MilitaryTokens, value: 1, color: 'bg-red-300' },
-          { type: 'three' as keyof MilitaryTokens, value: 3, color: 'bg-red-500' },
-          { type: 'five' as keyof MilitaryTokens, value: 5, color: 'bg-red-600' },
-        ].map(({ type, value, color }) => (
-          <div key={type} className={`${color} p-2 rounded text-center text-white`}>
-            <div className="font-bold text-sm">{value > 0 ? `+${value}` : value}</div>
-            <div className="flex items-center justify-center gap-1 mt-1">
+          { type: 'minusOne' as keyof MilitaryTokens, value: -1, bgColor: 'bg-white', textColor: 'text-black' },
+          { type: 'one' as keyof MilitaryTokens, value: 1, bgColor: 'bg-black', textColor: 'text-white' },
+          { type: 'three' as keyof MilitaryTokens, value: 3, bgColor: 'bg-black', textColor: 'text-white' },
+          { type: 'five' as keyof MilitaryTokens, value: 5, bgColor: 'bg-black', textColor: 'text-white' },
+        ].map(({ type, value, bgColor, textColor }) => (
+          <div key={type} className="flex items-center gap-3">
+            <div className={`${bgColor} ${textColor} border-2 border-red-500 w-12 h-8 flex items-center justify-center rounded font-bold text-sm`}>
+              {value > 0 ? `+${value}` : value}
+            </div>
+            <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => updateMilitaryToken(type, -1)}
-                className="p-1 h-5 w-5 hover:bg-black/10 text-white"
+                className="p-1 h-6 w-6 hover:bg-gray-200"
               >
-                <Minus className="w-2 h-2" />
+                <Minus className="w-3 h-3" />
               </Button>
-              <span className="text-xs font-medium w-4 text-center">{militaryTokens[type]}</span>
+              <Input
+                type="number"
+                value={militaryTokens[type] || ''}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value) || 0;
+                  const newTokens = { ...militaryTokens, [type]: Math.max(0, value) };
+                  setMilitaryTokens(newTokens);
+                  calculateMilitaryScore(newTokens);
+                }}
+                className="w-16 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                min="0"
+              />
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => updateMilitaryToken(type, 1)}
-                className="p-1 h-5 w-5 hover:bg-black/10 text-white"
+                className="p-1 h-6 w-6 hover:bg-gray-200"
               >
-                <Plus className="w-2 h-2" />
+                <Plus className="w-3 h-3" />
               </Button>
             </div>
           </div>
@@ -172,14 +193,32 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
         <div className="space-y-2">
           {cultureCards.map(card => (
             <div key={card.id} className="flex items-center gap-2">
-              <Input
-                type="number"
-                value={card.score || ''}
-                onChange={(e) => updateCultureCard(card.id, parseInt(e.target.value) || 0)}
-                placeholder="Points"
-                className="flex-1 h-6 text-xs"
-                min="0"
-              />
+              <div className="flex items-center gap-1 flex-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => adjustCultureCard(card.id, -1)}
+                  className="p-1 h-6 w-6 hover:bg-gray-200"
+                >
+                  <Minus className="w-3 h-3" />
+                </Button>
+                <Input
+                  type="number"
+                  value={card.score || ''}
+                  onChange={(e) => updateCultureCard(card.id, parseInt(e.target.value) || 0)}
+                  placeholder="Points"
+                  className="w-16 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  min="0"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => adjustCultureCard(card.id, 1)}
+                  className="p-1 h-6 w-6 hover:bg-gray-200"
+                >
+                  <Plus className="w-3 h-3" />
+                </Button>
+              </div>
               <Button
                 variant="ghost"
                 size="sm"
@@ -243,6 +282,12 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
         </div>
       );
     default:
-      return renderDefaultDetails();
+      return (
+        <div className="p-3 bg-white border-t">
+          <p className="text-sm text-gray-600">
+            Enter individual victory point components
+          </p>
+        </div>
+      );
   }
 };

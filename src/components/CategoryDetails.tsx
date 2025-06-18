@@ -85,8 +85,8 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
 
   const renderWealthDetails = () => (
     <div className="p-3 bg-white border-t space-y-3">
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">Total coins:</span>
+      <div className="flex items-center gap-3">
+        <span className="text-sm font-medium min-w-[80px]">Total coins:</span>
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
@@ -104,7 +104,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
               setCoins(value);
               calculateWealthScore(value);
             }}
-            className="w-12 h-6 text-center text-xs"
+            className="w-16 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             min="0"
           />
           <Button
@@ -117,9 +117,6 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
           </Button>
         </div>
       </div>
-      <p className="text-xs text-gray-600">
-        Victory Points: {Math.floor(coins / 3)} (coins ÷ 3, rounded down)
-      </p>
     </div>
   );
 
@@ -127,19 +124,19 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
     <div className="p-3 bg-white border-t space-y-3">
       <div className="grid grid-cols-2 gap-2">
         {[
-          { type: 'minusOne' as keyof MilitaryTokens, value: -1, color: 'bg-red-100' },
-          { type: 'one' as keyof MilitaryTokens, value: 1, color: 'bg-green-100' },
-          { type: 'three' as keyof MilitaryTokens, value: 3, color: 'bg-green-200' },
-          { type: 'five' as keyof MilitaryTokens, value: 5, color: 'bg-green-300' },
+          { type: 'minusOne' as keyof MilitaryTokens, value: -1, color: 'bg-red-400' },
+          { type: 'one' as keyof MilitaryTokens, value: 1, color: 'bg-red-300' },
+          { type: 'three' as keyof MilitaryTokens, value: 3, color: 'bg-red-500' },
+          { type: 'five' as keyof MilitaryTokens, value: 5, color: 'bg-red-600' },
         ].map(({ type, value, color }) => (
-          <div key={type} className={`${color} p-2 rounded text-center`}>
+          <div key={type} className={`${color} p-2 rounded text-center text-white`}>
             <div className="font-bold text-sm">{value > 0 ? `+${value}` : value}</div>
             <div className="flex items-center justify-center gap-1 mt-1">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => updateMilitaryToken(type, -1)}
-                className="p-1 h-5 w-5 hover:bg-black/10"
+                className="p-1 h-5 w-5 hover:bg-black/10 text-white"
               >
                 <Minus className="w-2 h-2" />
               </Button>
@@ -148,7 +145,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
                 variant="ghost"
                 size="sm"
                 onClick={() => updateMilitaryToken(type, 1)}
-                className="p-1 h-5 w-5 hover:bg-black/10"
+                className="p-1 h-5 w-5 hover:bg-black/10 text-white"
               >
                 <Plus className="w-2 h-2" />
               </Button>
@@ -156,9 +153,6 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
           </div>
         ))}
       </div>
-      <p className="text-xs text-gray-600">
-        Total Military Score: {calculateMilitaryScore(militaryTokens)}
-      </p>
     </div>
   );
 
@@ -196,9 +190,6 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
               </Button>
             </div>
           ))}
-          <p className="text-xs text-gray-600">
-            Total Culture Score: {calculateCultureScore(cultureCards)}
-          </p>
         </div>
       )}
     </div>

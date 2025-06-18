@@ -448,22 +448,22 @@ const Index = () => {
 
             {/* Copy Game Summary Buttons */}
             {playingPlayers.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-3 mt-8 bg-gray-100 p-3 rounded-lg">
+              <div className="flex justify-center gap-2 sm:gap-3 mt-8 bg-gray-100 p-3 rounded-lg">
                 <Button 
                   onClick={() => copyGameSummary(false)}
                   variant="outline"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4"
                 >
-                  <Copy className="w-4 h-4" />
-                  Game Summary
+                  <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden xs:inline">Game </span>Summary
                 </Button>
                 <Button 
                   onClick={() => copyGameSummary(true)}
                   variant="outline"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4"
                 >
-                  <Copy className="w-4 h-4" />
-                  Detailed Summary
+                  <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden xs:inline">Detailed </span>Summary
                 </Button>
               </div>
             )}
@@ -472,16 +472,14 @@ const Index = () => {
           <TabsContent value="solo" className="mt-6">
             {/* Top Control Buttons for Solo */}
             <div className="flex flex-wrap justify-center gap-3 mb-6">
-              {activePlayers.length > 0 && (
-                <Button 
-                  onClick={toggleExpandAll}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  {allExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                  {allExpanded ? 'Collapse All' : 'Expand All'}
-                </Button>
-              )}
+              <Button 
+                onClick={toggleExpandAll}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                {allExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {allExpanded ? 'Collapse All' : 'Expand All'}
+              </Button>
 
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -550,27 +548,22 @@ const Index = () => {
                   <Button 
                     variant="outline"
                     className="flex items-center gap-2"
-                    disabled={activePlayers.length >= 1}
                   >
                     <Plus className="w-4 h-4" />
-                    {activePlayers.length === 0 ? 'Add Board' : 'Board Selected'}
+                    {activePlayers.length === 0 ? 'Add Board' : 'Change Board'}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  {availableBoards.length === 0 ? (
-                    <DropdownMenuItem disabled>
-                      {activePlayers.length >= 1 ? 'Only one board allowed in Solo mode' : 'No boards available'}
+                  {wonderBoards.map(board => (
+                    <DropdownMenuItem 
+                      key={board}
+                      onClick={() => addSpecificBoard(board)}
+                      disabled={activePlayers.length > 0 && activePlayers[0].board === board}
+                    >
+                      {board.charAt(0).toUpperCase() + board.slice(1)}
+                      {activePlayers.length > 0 && activePlayers[0].board === board && ' (Current)'}
                     </DropdownMenuItem>
-                  ) : (
-                    availableBoards.map(board => (
-                      <DropdownMenuItem 
-                        key={board}
-                        onClick={() => addSpecificBoard(board)}
-                      >
-                        {board.charAt(0).toUpperCase() + board.slice(1)}
-                      </DropdownMenuItem>
-                    ))
-                  )}
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

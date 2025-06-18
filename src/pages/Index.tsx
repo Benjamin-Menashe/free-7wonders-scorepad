@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trophy, Upload } from 'lucide-react';
+import { Plus, Trophy, Upload, Expand, Collapse } from 'lucide-react';
 import WonderBoard from '@/components/WonderBoard';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
 import { calculateTotalScore, getWinner } from '@/utils/scoreCalculator';
@@ -33,6 +33,7 @@ const createEmptyScores = (): Record<ScoreCategory, number> => ({
 const Index = () => {
   const [players, setPlayers] = useState<PlayerData[]>([]);
   const [gameTitle, setGameTitle] = useState('7 Wonders');
+  const [allExpanded, setAllExpanded] = useState(false);
 
   // Initialize with all 7 wonder boards
   useEffect(() => {
@@ -74,8 +75,21 @@ const Index = () => {
     ));
   };
 
+  const addRemovedBoards = () => {
+    setPlayers(prev => prev.map(p => ({ ...p, isActive: true })));
+  };
+
+  const expandAll = () => {
+    setAllExpanded(true);
+  };
+
+  const collapseAll = () => {
+    setAllExpanded(false);
+  };
+
   const activePlayers = players.filter(p => p.isActive);
   const playingPlayers = activePlayers.filter(p => p.name.trim() !== '');
+  const hasRemovedBoards = players.some(p => !p.isActive);
   
   // Sort active players by total score (highest first)
   const sortedActivePlayers = activePlayers
@@ -92,9 +106,39 @@ const Index = () => {
             className="text-4xl md:text-6xl font-bold text-amber-900 mb-4 text-center border-none bg-transparent shadow-none text-center"
             placeholder="Game Title"
           />
-          <h2 className="text-lg text-amber-700">
+          <h2 className="text-lg text-amber-700 mb-6">
             Digital Scorepad
           </h2>
+          
+          {/* Control Buttons */}
+          <div className="flex flex-wrap justify-center gap-3 mb-6">
+            <Button 
+              onClick={expandAll}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Expand className="w-4 h-4" />
+              Expand All
+            </Button>
+            <Button 
+              onClick={collapseAll}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Collapse className="w-4 h-4" />
+              Collapse All
+            </Button>
+            {hasRemovedBoards && (
+              <Button 
+                onClick={addRemovedBoards}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Add Removed Boards
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Wonder Boards Grid */}
@@ -111,6 +155,7 @@ const Index = () => {
               onScoreChange={(category, value) => updatePlayerScore(player.id, category, value)}
               onRemove={() => removePlayer(player.id)}
               isEmpty={player.name.trim() === ''}
+              forceExpanded={allExpanded}
             />
           ))}
         </div>

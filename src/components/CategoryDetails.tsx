@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Minus, X } from 'lucide-react';
-import { ScoreCategory } from '@/types/game';
+import { ScoreCategory, WonderBoard, WonderSide } from '@/types/game';
 
 interface CategoryDetailsProps {
   category: ScoreCategory;
@@ -17,6 +16,10 @@ interface CategoryDetailsProps {
   onScienceSymbolsChange?: (symbols: ScienceSymbols) => void;
   cultureCards?: CultureCard[];
   onCultureCardsChange?: (cards: CultureCard[]) => void;
+  wonderBoard?: WonderBoard;
+  wonderSide?: WonderSide;
+  boardStages?: boolean[];
+  onBoardStagesChange?: (stages: boolean[]) => void;
 }
 
 interface MilitaryTokens {
@@ -37,6 +40,37 @@ interface CultureCard {
   score: number;
 }
 
+const boardStagePoints: Record<WonderBoard, Record<WonderSide, number[]>> = {
+  alexandria: {
+    day: [3, 0, 7],
+    night: [0, 0, 7]
+  },
+  babylon: {
+    day: [3, 0, 7],
+    night: [0, 0]
+  },
+  ephesus: {
+    day: [3, 0, 7],
+    night: [2, 3, 5]
+  },
+  giza: {
+    day: [3, 5, 7],
+    night: [3, 5, 5, 7]
+  },
+  halicarnassus: {
+    day: [3, 0, 7],
+    night: [2, 1, 0]
+  },
+  olympia: {
+    day: [3, 0, 7],
+    night: [2, 3, 5]
+  },
+  rhodes: {
+    day: [3, 0, 7],
+    night: [3, 4]
+  }
+};
+
 export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ 
   category, 
   onScoreChange,
@@ -47,7 +81,11 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
   scienceSymbols = { gear: 0, tablet: 0, compass: 0 },
   onScienceSymbolsChange,
   cultureCards = [],
-  onCultureCardsChange
+  onCultureCardsChange,
+  wonderBoard = 'alexandria',
+  wonderSide = 'day',
+  boardStages = [],
+  onBoardStagesChange
 }) => {
   const calculateWealthScore = (coinCount: number) => {
     const score = Math.floor(coinCount / 3);
@@ -117,6 +155,45 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
       const newScore = Math.max(0, card.score + delta);
       updateCultureCard(cardId, newScore);
     }
+  };
+
+  const calculateBoardScore = (stages: boolean[], board: WonderBoard, side: WonderSide) => {
+    const stagePoints = boardStagePoints[board][side];
+    const score = stages.reduce((total, completed, index) => {
+      return completed && stagePoints[index] !== undefined ? total + stagePoints[index] : total;
+    }, 0);
+    onScoreChange(score);
+    return score;
+  };
+
+  const toggleBoardStage = (stageIndex: number) => {
+    if (!wonderBoard || !wonderSide || !onBoardStagesChange) return;
+    
+    const stagePoints = boardStagePoints[wonderBoard][wonderSide];
+    const currentStages = [...boardStages];
+    
+    // Initialize stages array if needed
+    while (currentStages.length < stagePoints.length) {
+      currentStages.push(false);
+    }
+    
+    // If trying to complete a stage, check if all previous stages are completed
+    if (!currentStages[stageIndex]) {
+      for (let i = 0; i < stageIndex; i++) {
+        if (!currentStages[i]) {
+          return; // Can't complete this stage until previous ones are done
+        }
+      }
+      currentStages[stageIndex] = true;
+    } else {
+      // If unchecking a stage, uncheck all subsequent stages too
+      for (let i = stageIndex; i < currentStages.length; i++) {
+        currentStages[i] = false;
+      }
+    }
+    
+    onBoardStagesChange(currentStages);
+    calculateBoardScore(currentStages, wonderBoard, wonderSide);
   };
 
   const renderWealthDetails = () => (
@@ -320,6 +397,52 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
     </div>
   );
 
+  const renderBoardDetails = () => {
+    if (!wonderBoard || !wonderSide) return null;
+    
+    const stagePoints = boardStagePoints[wonderBoard][wonderSide];
+    const currentStages = [...boardStages];
+    
+    // Initialize stages array if needed
+    while (currentStages.length < stagePoints.length) {
+      currentStages.push(false);
+    }
+    
+    return (
+      <div className="p-3 bg-white border-t">
+        <div className="flex justify-center">
+          <div className="flex gap-2">
+            {stagePoints.map((points, index) => {
+              const stageLetter = String.fromCharCode(65 + index); // A, B, C, D...
+              const isCompleted = currentStages[index];
+              const canComplete = index === 0 || currentStages[index - 1];
+              
+              return (
+                <Button
+                  key={index}
+                  variant={isCompleted ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => toggleBoardStage(index)}
+                  disabled={!canComplete && !isCompleted}
+                  className={`w-12 h-12 flex flex-col items-center justify-center text-xs font-bold ${
+                    isCompleted 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : canComplete 
+                        ? 'border-2 border-blue-300 hover:bg-blue-50' 
+                        : 'border-2 border-gray-200 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  <div>{stageLetter}</div>
+                  <div className="text-[10px]">{points}</div>
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   switch (category) {
     case 'wealth':
       return renderWealthDetails();
@@ -330,13 +453,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
     case 'culture':
       return renderCultureDetails();
     case 'wonder':
-      return (
-        <div className="p-3 bg-white border-t flex justify-center">
-          <p className="text-sm text-gray-600">
-            Points from your Board stages and effects
-          </p>
-        </div>
-      );
+      return renderBoardDetails();
     case 'commerce':
       return (
         <div className="p-3 bg-white border-t flex justify-center">

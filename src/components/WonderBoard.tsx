@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -88,6 +87,8 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
     compass: 0
   });
   const [cultureCards, setCultureCards] = useState<CultureCard[]>([]);
+  
+  const [boardStages, setBoardStages] = useState<boolean[]>([]);
   
   const totalScore = calculateTotalScore(scores);
   const wonder = wonderInfo[board];
@@ -282,6 +283,10 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                     onScienceSymbolsChange={setScienceSymbols}
                     cultureCards={cultureCards}
                     onCultureCardsChange={setCultureCards}
+                    wonderBoard={board}
+                    wonderSide={wonderSide}
+                    boardStages={boardStages}
+                    onBoardStagesChange={setBoardStages}
                   />
                 )}
               </div>

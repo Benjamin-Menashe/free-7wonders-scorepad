@@ -10,20 +10,16 @@ export const calculateTotalScore = (scores: Record<ScoreCategory, number> | {}):
 };
 
 export const calculateCategoryTotal = (
-  scores: Record<string, Record<ScoreCategory, number> | {}>,
+  scores: Record<string, Record<ScoreCategory, number>>,
   category: ScoreCategory
 ): number => {
   return Object.values(scores).reduce((total, playerScores) => {
-    if (!playerScores || Object.keys(playerScores).length === 0) {
-      return total;
-    }
-    const typedPlayerScores = playerScores as Record<ScoreCategory, number>;
-    return total + (typedPlayerScores[category] || 0);
+    return total + (playerScores[category] || 0);
   }, 0);
 };
 
 export const getWinner = (
-  players: Array<{ id: string; name: string; scores: Record<ScoreCategory, number> | {} }>,
+  players: Array<{ id: string; name: string; scores: Record<ScoreCategory, number> }>,
 ): { playerId: string; name: string; score: number } | null => {
   if (players.length === 0) return null;
   

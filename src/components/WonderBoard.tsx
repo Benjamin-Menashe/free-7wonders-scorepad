@@ -101,7 +101,11 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
     setIsEditingName(false);
   };
 
-  const effectiveExpanded = forceExpanded || isExpanded;
+  const handleToggleExpansion = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  const effectiveExpanded = forceExpanded !== undefined ? forceExpanded : isExpanded;
   const headerColors = wonderSide === 'day' 
     ? 'bg-gradient-to-r from-white via-blue-50 to-blue-100' 
     : 'bg-gradient-to-r from-slate-800 via-slate-900 to-black';
@@ -109,9 +113,9 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
 
   return (
     <Card className="shadow-lg rounded-lg overflow-hidden">
-      <div className={`p-4 ${headerColors} ${textColors}`}>
+      <div className={`p-3 ${headerColors} ${textColors}`}>
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="flex items-center gap-1 flex-1 min-w-0">
             <Button
               variant="ghost"
               size="sm"
@@ -121,16 +125,40 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
               {wonderSide === 'day' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
             
-            <div className="font-bold text-xs sm:text-sm min-w-0 text-left">
+            <div className="font-bold text-xs min-w-0 text-left mr-2">
               {wonder.name}
+            </div>
+
+            {/* Player Name */}
+            <div className="flex-1 min-w-0">
+              {isEditingName ? (
+                <form onSubmit={handleNameSubmit} className="flex items-center">
+                  <Input
+                    value={playerName}
+                    onChange={(e) => onNameChange(e.target.value)}
+                    placeholder="Player name"
+                    className="bg-white/90 text-gray-800 placeholder:text-gray-500 border-0 h-7 text-sm font-bold text-center"
+                    autoFocus
+                    onBlur={() => setIsEditingName(false)}
+                  />
+                </form>
+              ) : (
+                <div
+                  onClick={() => setIsEditingName(true)}
+                  className={`${textColors} text-sm font-bold cursor-pointer hover:bg-black/10 px-2 py-1 rounded flex items-center gap-1 min-h-[28px] justify-center truncate`}
+                >
+                  <span className="truncate">{playerName || 'Add name'}</span>
+                  <Edit className="w-3 h-3 opacity-50 flex-shrink-0" />
+                </div>
+              )}
             </div>
           </div>
           
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setIsExpanded(!isExpanded)}
+              onClick={handleToggleExpansion}
               className={`${textColors} hover:bg-black/10 p-1 h-auto`}
             >
               {effectiveExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -144,35 +172,11 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
               variant="ghost"
               size="sm"
               onClick={onRemove}
-              className={`${textColors} hover:bg-red-500/50 p-1 h-auto`}
+              className={`${textColors} hover:bg-red-500/50 p-0.5 h-auto`}
             >
-              <X className="w-4 h-4" />
+              <X className="w-3 h-3" />
             </Button>
           </div>
-        </div>
-
-        {/* Player Name Section */}
-        <div className="mt-3 flex items-center justify-center">
-          {isEditingName ? (
-            <form onSubmit={handleNameSubmit} className="flex items-center gap-2">
-              <Input
-                value={playerName}
-                onChange={(e) => onNameChange(e.target.value)}
-                placeholder="Enter player name"
-                className="bg-white/90 text-gray-800 placeholder:text-gray-500 border-0 h-10 text-lg font-bold text-center"
-                autoFocus
-                onBlur={() => setIsEditingName(false)}
-              />
-            </form>
-          ) : (
-            <div
-              onClick={() => setIsEditingName(true)}
-              className={`${textColors} text-xl font-bold cursor-pointer hover:bg-black/10 px-3 py-2 rounded flex items-center gap-2 min-h-[40px] justify-center`}
-            >
-              {playerName || 'Click to add name'}
-              <Edit className="w-4 h-4 opacity-50" />
-            </div>
-          )}
         </div>
       </div>
 

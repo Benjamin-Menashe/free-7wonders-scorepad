@@ -19,11 +19,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { ChevronUp, ChevronDown, Plus, Copy, Trash2, RotateCcw } from 'lucide-react';
+import { ChevronUp, ChevronDown, Plus, Copy, Trash2, RotateCcw, ArrowUpDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import WonderBoard from '@/components/WonderBoard';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
 import { calculateTotalScore, getWinner } from '@/utils/scoreCalculator';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
 interface PlayerData {
   id: string;
@@ -289,14 +290,44 @@ const Index = () => {
     });
   };
 
+  const sortPlayersByScore = () => {
+    if (activeTab === 'all-players') {
+      const sortedPlayers = [...allPlayersData].sort((a, b) => {
+        if (!a.isActive && !b.isActive) return 0;
+        if (!a.isActive) return 1;
+        if (!b.isActive) return -1;
+        return calculateTotalScore(b.scores) - calculateTotalScore(a.scores);
+      });
+      setAllPlayersData(sortedPlayers);
+      toast({
+        title: "Players sorted",
+        description: "Players have been sorted by score (highest to lowest).",
+        duration: 1000,
+      });
+    }
+  };
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination || activeTab !== 'all-players') {
+      return;
+    }
+
+    const items = Array.from(allPlayersData);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setAllPlayersData(items);
+  };
+
   const players = getCurrentPlayers();
   const activePlayers = players.filter(p => p.isActive);
   const playingPlayers = activePlayers.filter(p => p.name.trim() !== '');
   const removedBoards = players.filter(p => !p.isActive);
   
-  // Sort active players by total score (highest first)
-  const sortedActivePlayers = activePlayers
-    .sort((a, b) => calculateTotalScore(b.scores) - calculateTotalScore(a.scores));
+  // For solo mode, sort by score. For all players mode, use manual order
+  const displayPlayers = activeTab === 'solo' 
+    ? activePlayers.sort((a, b) => calculateTotalScore(b.scores) - calculateTotalScore(a.scores))
+    : activePlayers;
 
   // Get available boards for dropdown
   const getAvailableBoards = () => {
@@ -349,6 +380,15 @@ const Index = () => {
                 {allExpanded ? 'Collapse All' : 'Expand All'}
               </Button>
 
+              <Button 
+                onClick={sortPlayersByScore}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <ArrowUpDown className="w-4 h-4" />
+                Sort
+              </Button>
+
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button 
@@ -382,24 +422,45 @@ const Index = () => {
               </AlertDialog>
             </div>
 
-            {/* Wonder Boards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {sortedActivePlayers.map(player => (
-                <WonderBoard
-                  key={player.id}
-                  board={player.board}
-                  playerName={player.name}
-                  wonderSide={player.side}
-                  scores={player.scores}
-                  onNameChange={(name) => updatePlayerName(player.id, name)}
-                  onSideChange={(side) => updatePlayerSide(player.id, side)}
-                  onScoreChange={(category, value) => updatePlayerScore(player.id, category, value)}
-                  onRemove={() => removePlayer(player.id)}
-                  isEmpty={player.name.trim() === ''}
-                  forceExpanded={allExpanded}
-                />
-              ))}
-            </div>
+            {/* Wonder Boards Grid with Drag and Drop */}
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="wonder-boards">
+                {(provided) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                  >
+                    {displayPlayers.map((player, index) => (
+                      <Draggable key={player.id} draggableId={player.id} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className={`${snapshot.isDragging ? 'opacity-75 transform rotate-3' : ''} transition-all duration-200`}
+                          >
+                            <WonderBoard
+                              board={player.board}
+                              playerName={player.name}
+                              wonderSide={player.side}
+                              scores={player.scores}
+                              onNameChange={(name) => updatePlayerName(player.id, name)}
+                              onSideChange={(side) => updatePlayerSide(player.id, side)}
+                              onScoreChange={(category, value) => updatePlayerScore(player.id, category, value)}
+                              onRemove={() => removePlayer(player.id)}
+                              isEmpty={player.name.trim() === ''}
+                              forceExpanded={allExpanded}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
 
             {/* Bottom Control Buttons for All Players */}
             <div className="flex justify-between items-center gap-3 mt-6">
@@ -520,7 +581,7 @@ const Index = () => {
             ) : (
               <div className="flex justify-center">
                 <div className="w-full max-w-md">
-                  {sortedActivePlayers.map(player => (
+                  {displayPlayers.map(player => (
                     <WonderBoard
                       key={player.id}
                       board={player.board}

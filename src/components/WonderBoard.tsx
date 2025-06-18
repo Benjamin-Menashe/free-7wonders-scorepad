@@ -47,6 +47,15 @@ interface CommerceCard {
   step: number;
 }
 
+interface GuildsCard {
+  id: string;
+  name: string;
+  score: number;
+  description: string;
+  step: number;
+  maxScore?: number;
+}
+
 const wonderInfo: Record<WonderBoardType, { name: string; description: string }> = {
   alexandria: { name: 'Alexandria', description: 'The Great Library' },
   babylon: { name: 'Babylon', description: 'The Hanging Gardens' },
@@ -96,9 +105,10 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
   });
   const [cultureCards, setCultureCards] = useState<CultureCard[]>([]);
   const [commerceCards, setCommerceCards] = useState<CommerceCard[]>([]);
+  const [guildsCards, setGuildsCards] = useState<GuildsCard[]>([]);
   
   const [boardStages, setBoardStages] = useState<boolean[]>([]);
-  
+
   const totalScore = calculateTotalScore(scores);
   const wonder = wonderInfo[board];
 
@@ -294,6 +304,8 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                     onCultureCardsChange={setCultureCards}
                     commerceCards={commerceCards}
                     onCommerceCardsChange={setCommerceCards}
+                    guildsCards={guildsCards}
+                    onGuildsCardsChange={setGuildsCards}
                     wonderBoard={board}
                     wonderSide={wonderSide}
                     boardStages={boardStages}

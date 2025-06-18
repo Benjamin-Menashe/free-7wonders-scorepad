@@ -5,91 +5,120 @@ import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Plus, Minus, X, ChevronDown } from 'lucide-react';
 
-interface CommerceCard {
+interface GuildsCard {
   id: string;
   name: string;
   score: number;
   description: string;
   step: number;
+  maxScore?: number;
 }
 
-interface CommerceDetailsProps {
-  commerceCards: CommerceCard[];
-  onCommerceCardsChange: (cards: CommerceCard[]) => void;
+interface GuildsDetailsProps {
+  guildsCards: GuildsCard[];
+  onGuildsCardsChange: (cards: GuildsCard[]) => void;
   onScoreChange: (score: number) => void;
 }
 
-const commerceCardsList = [
+const guildsCardsList = [
   {
-    name: 'Lighthouse',
-    description: '1 point for each yellow card you own',
+    name: 'Workers Guild',
+    description: '1 point for each brown card your neighbors own',
     step: 1
   },
   {
-    name: 'Haven',
-    description: '1 point for each brown card you own',
-    step: 1
-  },
-  {
-    name: 'Chamber of Commerce',
-    description: '2 points for each gray card you own',
+    name: 'Craftsmens Guild',
+    description: '2 points for each gray card your neighbors own',
     step: 2
   },
   {
-    name: 'Ludus',
-    description: '1 point for each red card you own',
+    name: 'Magistrates Guild',
+    description: '1 point for each blue card your neighbors own',
     step: 1
   },
   {
-    name: 'Arena',
-    description: '1 point for each stage you constructed',
+    name: 'Traders Guild',
+    description: '1 point for each yellow card your neighbors own',
     step: 1
+  },
+  {
+    name: 'Spies Guild',
+    description: '1 point for each red card your neighbors own',
+    step: 1
+  },
+  {
+    name: 'Philosophers Guild',
+    description: '1 point for each green card your neighbors own',
+    step: 1
+  },
+  {
+    name: 'Shipowners Guild',
+    description: '1 point for each brown, gray, and purple card you own',
+    step: 1
+  },
+  {
+    name: 'Builders Guild',
+    description: '1 point for each stage you and your neighbors constructed',
+    step: 1
+  },
+  {
+    name: 'Decorators Guild',
+    description: '7 points if you constructed all your stages',
+    step: 7,
+    maxScore: 7
   }
 ];
 
-export const CommerceDetails: React.FC<CommerceDetailsProps> = ({
-  commerceCards,
-  onCommerceCardsChange,
+export const GuildsDetails: React.FC<GuildsDetailsProps> = ({
+  guildsCards,
+  onGuildsCardsChange,
   onScoreChange
 }) => {
-  const calculateCommerceScore = (cards: CommerceCard[]) => {
+  const calculateGuildsScore = (cards: GuildsCard[]) => {
     const score = cards.reduce((sum, card) => sum + card.score, 0);
     onScoreChange(score);
     return score;
   };
 
-  const addCommerceCard = (cardTemplate: typeof commerceCardsList[0]) => {
-    const newCard: CommerceCard = { 
+  const addGuildsCard = (cardTemplate: typeof guildsCardsList[0]) => {
+    const newCard: GuildsCard = { 
       id: `${cardTemplate.name}-${Date.now()}`, 
       name: cardTemplate.name,
       score: 0,
       description: cardTemplate.description,
-      step: cardTemplate.step
+      step: cardTemplate.step,
+      maxScore: cardTemplate.maxScore
     };
-    const newCards = [...commerceCards, newCard];
-    onCommerceCardsChange(newCards);
-    calculateCommerceScore(newCards);
+    const newCards = [...guildsCards, newCard];
+    onGuildsCardsChange(newCards);
+    calculateGuildsScore(newCards);
   };
 
-  const removeCommerceCard = (cardId: string) => {
-    const newCards = commerceCards.filter(card => card.id !== cardId);
-    onCommerceCardsChange(newCards);
-    calculateCommerceScore(newCards);
+  const removeGuildsCard = (cardId: string) => {
+    const newCards = guildsCards.filter(card => card.id !== cardId);
+    onGuildsCardsChange(newCards);
+    calculateGuildsScore(newCards);
   };
 
-  const updateCommerceCard = (cardId: string, score: number) => {
-    const newCards = commerceCards.map(card => 
-      card.id === cardId ? { ...card, score } : card
-    );
-    onCommerceCardsChange(newCards);
-    calculateCommerceScore(newCards);
-  };
-
-  const adjustCommerceCard = (cardId: string, delta: number) => {
-    const card = commerceCards.find(c => c.id === cardId);
+  const updateGuildsCard = (cardId: string, score: number) => {
+    const card = guildsCards.find(c => c.id === cardId);
     if (card) {
-      const newScore = Math.max(0, card.score + delta);
-      updateCommerceCard(cardId, newScore);
+      const maxScore = card.maxScore || Infinity;
+      const clampedScore = Math.min(Math.max(0, score), maxScore);
+      const newCards = guildsCards.map(c => 
+        c.id === cardId ? { ...c, score: clampedScore } : c
+      );
+      onGuildsCardsChange(newCards);
+      calculateGuildsScore(newCards);
+    }
+  };
+
+  const adjustGuildsCard = (cardId: string, delta: number) => {
+    const card = guildsCards.find(c => c.id === cardId);
+    if (card) {
+      const maxScore = card.maxScore || Infinity;
+      const newScore = Math.min(Math.max(0, card.score + delta), maxScore);
+      updateGuildsCard(cardId, newScore);
     }
   };
 
@@ -101,17 +130,17 @@ export const CommerceDetails: React.FC<CommerceDetailsProps> = ({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="justify-between">
-                Select a commerce card...
+                Select a guild card...
                 <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-white border shadow-lg z-50">
-              {commerceCardsList.map(cardTemplate => {
-                const isAdded = commerceCards.some(card => card.name === cardTemplate.name);
+              {guildsCardsList.map(cardTemplate => {
+                const isAdded = guildsCards.some(card => card.name === cardTemplate.name);
                 return (
                   <DropdownMenuItem
                     key={cardTemplate.name}
-                    onClick={() => !isAdded && addCommerceCard(cardTemplate)}
+                    onClick={() => !isAdded && addGuildsCard(cardTemplate)}
                     disabled={isAdded}
                     className={`${isAdded ? 'opacity-50' : ''} cursor-pointer`}
                   >
@@ -124,9 +153,9 @@ export const CommerceDetails: React.FC<CommerceDetailsProps> = ({
         </div>
 
         {/* Added cards */}
-        {commerceCards.length > 0 && (
+        {guildsCards.length > 0 && (
           <div className="space-y-3">
-            {commerceCards.map(card => (
+            {guildsCards.map(card => (
               <div key={card.id} className="border rounded-lg p-3 bg-gray-50">
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <div className="font-medium text-sm">{card.name}</div>
@@ -134,7 +163,7 @@ export const CommerceDetails: React.FC<CommerceDetailsProps> = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => adjustCommerceCard(card.id, -card.step)}
+                      onClick={() => adjustGuildsCard(card.id, -card.step)}
                       className="p-1 h-6 w-6 hover:bg-gray-200"
                     >
                       <Minus className="w-3 h-3" />
@@ -142,15 +171,16 @@ export const CommerceDetails: React.FC<CommerceDetailsProps> = ({
                     <Input
                       type="number"
                       value={card.score || ''}
-                      onChange={(e) => updateCommerceCard(card.id, parseInt(e.target.value) || 0)}
+                      onChange={(e) => updateGuildsCard(card.id, parseInt(e.target.value) || 0)}
                       placeholder="Points"
                       className="w-16 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       min="0"
+                      max={card.maxScore}
                     />
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => adjustCommerceCard(card.id, card.step)}
+                      onClick={() => adjustGuildsCard(card.id, card.step)}
                       className="p-1 h-6 w-6 hover:bg-gray-200"
                     >
                       <Plus className="w-3 h-3" />
@@ -158,7 +188,7 @@ export const CommerceDetails: React.FC<CommerceDetailsProps> = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => removeCommerceCard(card.id)}
+                      onClick={() => removeGuildsCard(card.id)}
                       className="p-1 h-6 w-6 hover:bg-red-200 ml-1"
                     >
                       <X className="w-3 h-3" />

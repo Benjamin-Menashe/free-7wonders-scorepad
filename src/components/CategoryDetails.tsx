@@ -7,6 +7,7 @@ import { ScienceDetails } from './category-details/ScienceDetails';
 import { CultureDetails } from './category-details/CultureDetails';
 import { CommerceDetails } from './category-details/CommerceDetails';
 import { WonderBoardDetails } from './category-details/WonderBoardDetails';
+import { GuildsDetails } from './category-details/GuildsDetails';
 
 interface CategoryDetailsProps {
   category: ScoreCategory;
@@ -26,6 +27,8 @@ interface CategoryDetailsProps {
   onBoardStagesChange?: (stages: boolean[]) => void;
   commerceCards?: CommerceCard[];
   onCommerceCardsChange?: (cards: CommerceCard[]) => void;
+  guildsCards?: GuildsCard[];
+  onGuildsCardsChange?: (cards: GuildsCard[]) => void;
 }
 
 interface MilitaryTokens {
@@ -54,6 +57,15 @@ interface CommerceCard {
   step: number;
 }
 
+interface GuildsCard {
+  id: string;
+  name: string;
+  score: number;
+  description: string;
+  step: number;
+  maxScore?: number;
+}
+
 export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ 
   category, 
   onScoreChange,
@@ -70,7 +82,9 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
   boardStages = [],
   onBoardStagesChange,
   commerceCards = [],
-  onCommerceCardsChange
+  onCommerceCardsChange,
+  guildsCards = [],
+  onGuildsCardsChange
 }) => {
   switch (category) {
     case 'wealth':
@@ -85,9 +99,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
       return (
         <MilitaryDetails
           militaryTokens={militaryTokens}
-          onMilit
-
-aryTokensChange={onMilitaryTokensChange!}
+          onMilitaryTokensChange={onMilitaryTokensChange!}
           onScoreChange={onScoreChange}
         />
       );
@@ -127,11 +139,11 @@ aryTokensChange={onMilitaryTokensChange!}
       );
     case 'guilds':
       return (
-        <div className="p-3 bg-white border-t flex justify-center">
-          <p className="text-sm text-gray-600">
-            Points from purple guild cards (Age III)
-          </p>
-        </div>
+        <GuildsDetails
+          guildsCards={guildsCards}
+          onGuildsCardsChange={onGuildsCardsChange!}
+          onScoreChange={onScoreChange}
+        />
       );
     default:
       return (

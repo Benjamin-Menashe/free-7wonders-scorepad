@@ -214,7 +214,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
   );
 
   const renderScienceDetails = () => (
-    <div className="p-3 border-t" style={{ backgroundColor: '#ede9e6' }}>
+    <div className="p-3 bg-white border-t">
       <div className="space-y-2 flex flex-col items-center">
         {[
           { type: 'gear' as keyof ScienceSymbols, name: 'Gear', image: '/lovable-uploads/57cf6465-fad3-46e7-aab6-0078037e7d97.png' },
@@ -222,7 +222,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
           { type: 'compass' as keyof ScienceSymbols, name: 'Compass', image: '/lovable-uploads/25de66f2-6275-40db-b4ef-244ea6bc058b.png' },
         ].map(({ type, name, image }) => (
           <div key={type} className="flex items-center gap-3">
-            <div className="w-12 h-8 flex items-center justify-center rounded border-2 border-green-500">
+            <div className="w-12 h-8 flex items-center justify-center rounded border-2 border-green-500" style={{ backgroundColor: '#ede9e6' }}>
               <img src={image} alt={name} className="w-6 h-6 object-contain" />
             </div>
             <div className="flex items-center gap-1">

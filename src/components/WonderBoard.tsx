@@ -60,6 +60,18 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
   useEffect(() => {
     if (forceExpanded !== undefined) {
       setIsExpanded(forceExpanded);
+      // When expand all is triggered, collapse all category expansions
+      if (forceExpanded) {
+        setExpandedCategories({
+          wonder: false,
+          wealth: false,
+          military: false,
+          culture: false,
+          commerce: false,
+          science: false,
+          guilds: false
+        });
+      }
     }
   }, [forceExpanded]);
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -64,7 +63,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
 
   const addCultureCard = () => {
     const newCard = { id: `card-${Date.now()}`, score: 0 };
-    const newCards = [...cultureCards, newCard];
+    const newCards = [newCard, ...cultureCards]; // Add to top
     setCultureCards(newCards);
     calculateCultureScore(newCards);
   };
@@ -92,9 +91,9 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
   };
 
   const renderWealthDetails = () => (
-    <div className="p-3 bg-white border-t space-y-3">
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium min-w-[80px]">Total coins:</span>
+    <div className="p-3 bg-white border-t">
+      <div className="flex items-center justify-center gap-3">
+        <span className="text-sm font-medium">Total coins:</span>
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
@@ -112,7 +111,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
               setCoins(value);
               calculateWealthScore(value);
             }}
-            className="w-16 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-20 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             min="0"
           />
           <Button
@@ -129,8 +128,8 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
   );
 
   const renderMilitaryDetails = () => (
-    <div className="p-3 bg-white border-t space-y-3">
-      <div className="space-y-2">
+    <div className="p-3 bg-white border-t">
+      <div className="space-y-2 flex flex-col items-center">
         {[
           { type: 'minusOne' as keyof MilitaryTokens, value: -1, bgColor: 'bg-white', textColor: 'text-black' },
           { type: 'one' as keyof MilitaryTokens, value: 1, bgColor: 'bg-black', textColor: 'text-white' },
@@ -178,59 +177,61 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
   );
 
   const renderCultureDetails = () => (
-    <div className="p-3 bg-white border-t space-y-3">
-      <Button
-        onClick={addCultureCard}
-        variant="outline"
-        size="sm"
-        className="w-full flex items-center gap-2"
-      >
-        <Plus className="w-3 h-3" />
-        Add Card
-      </Button>
-      
-      {cultureCards.length > 0 && (
-        <div className="space-y-2">
-          {cultureCards.map(card => (
-            <div key={card.id} className="flex items-center gap-2">
-              <div className="flex items-center gap-1 flex-1">
+    <div className="p-3 bg-white border-t">
+      <div className="flex flex-col items-center space-y-3">
+        <Button
+          onClick={addCultureCard}
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2"
+        >
+          <Plus className="w-3 h-3" />
+          Add Card
+        </Button>
+        
+        {cultureCards.length > 0 && (
+          <div className="space-y-2 w-full max-w-xs">
+            {cultureCards.map(card => (
+              <div key={card.id} className="flex items-center justify-center gap-2">
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => adjustCultureCard(card.id, -1)}
+                    className="p-1 h-6 w-6 hover:bg-gray-200"
+                  >
+                    <Minus className="w-3 h-3" />
+                  </Button>
+                  <Input
+                    type="number"
+                    value={card.score || ''}
+                    onChange={(e) => updateCultureCard(card.id, parseInt(e.target.value) || 0)}
+                    placeholder="Points"
+                    className="w-16 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    min="0"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => adjustCultureCard(card.id, 1)}
+                    className="p-1 h-6 w-6 hover:bg-gray-200"
+                  >
+                    <Plus className="w-3 h-3" />
+                  </Button>
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => adjustCultureCard(card.id, -1)}
-                  className="p-1 h-6 w-6 hover:bg-gray-200"
+                  onClick={() => removeCultureCard(card.id)}
+                  className="p-1 h-6 w-6 hover:bg-red-200"
                 >
-                  <Minus className="w-3 h-3" />
-                </Button>
-                <Input
-                  type="number"
-                  value={card.score || ''}
-                  onChange={(e) => updateCultureCard(card.id, parseInt(e.target.value) || 0)}
-                  placeholder="Points"
-                  className="w-16 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  min="0"
-                />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => adjustCultureCard(card.id, 1)}
-                  className="p-1 h-6 w-6 hover:bg-gray-200"
-                >
-                  <Plus className="w-3 h-3" />
+                  <X className="w-3 h-3" />
                 </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => removeCultureCard(card.id)}
-                className="p-1 h-6 w-6 hover:bg-red-200"
-              >
-                <X className="w-3 h-3" />
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 
@@ -251,7 +252,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
       return renderCultureDetails();
     case 'wonder':
       return (
-        <div className="p-3 bg-white border-t">
+        <div className="p-3 bg-white border-t flex justify-center">
           <p className="text-sm text-gray-600">
             Points from your Board stages and effects
           </p>
@@ -259,7 +260,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
       );
     case 'commerce':
       return (
-        <div className="p-3 bg-white border-t">
+        <div className="p-3 bg-white border-t flex justify-center">
           <p className="text-sm text-gray-600">
             Points from yellow commercial structures
           </p>
@@ -267,7 +268,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
       );
     case 'science':
       return (
-        <div className="p-3 bg-white border-t">
+        <div className="p-3 bg-white border-t flex justify-center">
           <p className="text-sm text-gray-600">
             Points from green science structures and symbols
           </p>
@@ -275,7 +276,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
       );
     case 'guilds':
       return (
-        <div className="p-3 bg-white border-t">
+        <div className="p-3 bg-white border-t flex justify-center">
           <p className="text-sm text-gray-600">
             Points from purple guild cards (Age III)
           </p>
@@ -283,7 +284,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
       );
     default:
       return (
-        <div className="p-3 bg-white border-t">
+        <div className="p-3 bg-white border-t flex justify-center">
           <p className="text-sm text-gray-600">
             Enter individual victory point components
           </p>

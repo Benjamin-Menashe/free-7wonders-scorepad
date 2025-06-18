@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -194,7 +195,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                       value={scores[category.key] || ''}
                       onChange={(e) => handleScoreChange(category.key, e.target.value)}
                       placeholder="0"
-                      className="w-16 text-center h-8"
+                      className="w-12 text-center h-8 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       min={category.key === 'military' ? undefined : "0"}
                       onClick={(e) => e.stopPropagation()}
                     />

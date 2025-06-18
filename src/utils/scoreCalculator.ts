@@ -23,16 +23,14 @@ export const calculateCategoryTotal = (
 };
 
 export const getWinner = (
-  players: Array<{ id: string; name: string }>,
-  scores: Record<string, Record<ScoreCategory, number> | {}>
+  players: Array<{ id: string; name: string; scores: Record<ScoreCategory, number> }>,
 ): { playerId: string; name: string; score: number } | null => {
   if (players.length === 0) return null;
   
   let winner = { playerId: '', name: '', score: -1 };
   
   players.forEach(player => {
-    const playerScores = scores[player.id] || {};
-    const totalScore = calculateTotalScore(playerScores);
+    const totalScore = calculateTotalScore(player.scores);
     if (totalScore > winner.score) {
       winner = {
         playerId: player.id,

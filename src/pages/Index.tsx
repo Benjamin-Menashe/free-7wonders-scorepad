@@ -2,7 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trophy, Upload, ChevronUp, ChevronDown } from 'lucide-react';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { ChevronUp, ChevronDown, Plus } from 'lucide-react';
 import WonderBoard from '@/components/WonderBoard';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
 import { calculateTotalScore, getWinner } from '@/utils/scoreCalculator';
@@ -75,21 +81,19 @@ const Index = () => {
     ));
   };
 
-  const addRemovedBoards = () => {
-    setPlayers(prev => prev.map(p => ({ ...p, isActive: true })));
+  const addSpecificBoard = (boardType: WonderBoardType) => {
+    setPlayers(prev => prev.map(p => 
+      p.board === boardType ? { ...p, isActive: true } : p
+    ));
   };
 
-  const expandAll = () => {
-    setAllExpanded(true);
-  };
-
-  const collapseAll = () => {
-    setAllExpanded(false);
+  const toggleExpandAll = () => {
+    setAllExpanded(!allExpanded);
   };
 
   const activePlayers = players.filter(p => p.isActive);
   const playingPlayers = activePlayers.filter(p => p.name.trim() !== '');
-  const hasRemovedBoards = players.some(p => !p.isActive);
+  const removedBoards = players.filter(p => !p.isActive);
   
   // Sort active players by total score (highest first)
   const sortedActivePlayers = activePlayers
@@ -113,31 +117,41 @@ const Index = () => {
           {/* Control Buttons */}
           <div className="flex flex-wrap justify-center gap-3 mb-6">
             <Button 
-              onClick={expandAll}
+              onClick={toggleExpandAll}
               variant="outline"
               className="flex items-center gap-2"
             >
-              <ChevronDown className="w-4 h-4" />
-              Expand All
+              {allExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              {allExpanded ? 'Collapse All' : 'Expand All'}
             </Button>
-            <Button 
-              onClick={collapseAll}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <ChevronUp className="w-4 h-4" />
-              Collapse All
-            </Button>
-            {hasRemovedBoards && (
-              <Button 
-                onClick={addRemovedBoards}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Add Removed Boards
-              </Button>
-            )}
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Board
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {removedBoards.length === 0 ? (
+                  <DropdownMenuItem disabled>
+                    No boards removed
+                  </DropdownMenuItem>
+                ) : (
+                  removedBoards.map(board => (
+                    <DropdownMenuItem 
+                      key={board.id}
+                      onClick={() => addSpecificBoard(board.board)}
+                    >
+                      {board.board.charAt(0).toUpperCase() + board.board.slice(1)}
+                    </DropdownMenuItem>
+                  ))
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 

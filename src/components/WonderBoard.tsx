@@ -170,7 +170,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                     value={playerName}
                     onChange={(e) => onNameChange(e.target.value)}
                     placeholder="Player name"
-                    className={`bg-white/90 ${playerNameTextColor} placeholder:text-gray-500 border-0 h-7 text-sm font-bold text-right w-32`}
+                    className={`bg-white/90 text-black placeholder:text-gray-500 border-0 h-7 text-sm font-bold text-right w-32`}
                     autoFocus
                     onBlur={() => setIsEditingName(false)}
                   />

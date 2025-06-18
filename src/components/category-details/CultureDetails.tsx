@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -111,8 +110,7 @@ export const CultureDetails: React.FC<CultureDetailsProps> = ({
             size="sm"
             className="flex items-center gap-2"
           >
-            <Plus className="w-3 h-3" />
-            Add Card
+            Add Manually
           </Button>
           
           <DropdownMenu>
@@ -123,7 +121,6 @@ export const CultureDetails: React.FC<CultureDetailsProps> = ({
                 className="flex items-center gap-2"
                 disabled={availablePredefinedCards.length === 0}
               >
-                <Plus className="w-3 h-3" />
                 Add Specific Card
                 <ChevronDown className="w-3 h-3" />
               </Button>

@@ -141,6 +141,7 @@ const Index = () => {
         title: "No players to summarize",
         description: "Add some players with names first!",
         variant: "destructive",
+        duration: 1000,
       });
       return;
     }
@@ -170,12 +171,15 @@ const Index = () => {
         summary += `${medal} ${player.name} - ${calculateTotalScore(player.scores)} pts (${player.board.charAt(0).toUpperCase() + player.board.slice(1)}, ${player.side === 'day' ? '☀️' : '🌙'})\n`;
       });
       
-      summary += `\nDetailed Scores:\n`;
-      sortedPlayers.forEach(player => {
-        summary += `\n${player.name} (${player.board.charAt(0).toUpperCase() + player.board.slice(1)}):\n`;
-        summary += `🔶 Wonder: ${player.scores.wonder} | 🪙 Wealth: ${player.scores.wealth} | ⚔️ Military: ${player.scores.military}\n`;
-        summary += `🏛️ Culture: ${player.scores.culture} | 🏺 Commerce: ${player.scores.commerce} | 📖 Science: ${player.scores.science} | 👥 Guilds: ${player.scores.guilds}\n`;
-      });
+      // Only add detailed scores if expand all is active
+      if (allExpanded) {
+        summary += `\nDetailed Scores:\n`;
+        sortedPlayers.forEach(player => {
+          summary += `\n${player.name} (${player.board.charAt(0).toUpperCase() + player.board.slice(1)}):\n`;
+          summary += `🔶 Wonder: ${player.scores.wonder} | 🪙 Wealth: ${player.scores.wealth} | ⚔️ Military: ${player.scores.military}\n`;
+          summary += `🏛️ Culture: ${player.scores.culture} | 🏺 Commerce: ${player.scores.commerce} | 📖 Science: ${player.scores.science} | 👥 Guilds: ${player.scores.guilds}\n`;
+        });
+      }
     }
 
     summary += `\n--- Created with 7 Wonders Digital Scorepad by Benjamin Menashe ---\n`;
@@ -185,12 +189,14 @@ const Index = () => {
       toast({
         title: "Game summary copied!",
         description: "The game summary has been copied to your clipboard.",
+        duration: 1000,
       });
     }).catch(() => {
       toast({
         title: "Copy failed",
         description: "Unable to copy to clipboard. Please try again.",
         variant: "destructive",
+        duration: 1000,
       });
     });
   };

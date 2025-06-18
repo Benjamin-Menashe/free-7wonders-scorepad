@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Trophy } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Plus, Trophy, Upload } from 'lucide-react';
 import WonderBoard from '@/components/WonderBoard';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
 import { calculateTotalScore, getWinner } from '@/utils/scoreCalculator';
@@ -31,6 +32,7 @@ const createEmptyScores = (): Record<ScoreCategory, number> => ({
 
 const Index = () => {
   const [players, setPlayers] = useState<PlayerData[]>([]);
+  const [gameTitle, setGameTitle] = useState('7 Wonders');
 
   // Initialize with all 7 wonder boards
   useEffect(() => {
@@ -84,12 +86,15 @@ const Index = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-6xl font-bold text-amber-900 mb-4">
-            7 Wonders Digital Scorepad
-          </h1>
-          <p className="text-lg text-amber-700 max-w-2xl mx-auto">
-            Track scores for the legendary board game of ancient civilizations
-          </p>
+          <Input
+            value={gameTitle}
+            onChange={(e) => setGameTitle(e.target.value)}
+            className="text-4xl md:text-6xl font-bold text-amber-900 mb-4 text-center border-none bg-transparent shadow-none text-center"
+            placeholder="Game Title"
+          />
+          <h2 className="text-lg text-amber-700">
+            Digital Scorepad
+          </h2>
         </div>
 
         {/* Wonder Boards Grid */}

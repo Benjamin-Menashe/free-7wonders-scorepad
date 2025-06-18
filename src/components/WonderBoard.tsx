@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -30,11 +31,11 @@ const wonderInfo: Record<WonderBoardType, { name: string; description: string }>
 };
 
 const scoreCategories: { key: ScoreCategory; name: string; color: string; icon: string }[] = [
-  { key: 'wonder', name: 'Wonder Board', color: 'text-amber-600', icon: '🔶' },
-  { key: 'wealth', name: 'Wealth', color: 'text-yellow-600', icon: '🪙' },
+  { key: 'wonder', name: 'Wonder Board', color: 'text-amber-900', icon: '🔶' },
+  { key: 'wealth', name: 'Wealth', color: 'text-yellow-700', icon: '🪙' },
   { key: 'military', name: 'Military', color: 'text-red-600', icon: '⚔️' },
   { key: 'culture', name: 'Culture', color: 'text-blue-600', icon: '🏛️' },
-  { key: 'commerce', name: 'Commerce', color: 'text-yellow-700', icon: '🏺' },
+  { key: 'commerce', name: 'Commerce', color: 'text-yellow-500', icon: '🏺' },
   { key: 'science', name: 'Science', color: 'text-green-600', icon: '📖' },
   { key: 'guilds', name: 'Guilds', color: 'text-purple-600', icon: '👥' },
 ];
@@ -76,77 +77,73 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
     }));
   };
 
-  // Dynamic colors based on day/night
+  // Prettier color scheme
   const headerColors = wonderSide === 'day' 
-    ? 'bg-gradient-to-r from-white to-sky-300' 
-    : 'bg-gradient-to-r from-blue-900 to-black';
-    
-  const borderColors = wonderSide === 'day' 
-    ? 'border-black' 
-    : 'border-white';
+    ? 'bg-gradient-to-r from-blue-100 via-sky-100 to-cyan-100' 
+    : 'bg-gradient-to-r from-slate-800 via-slate-900 to-black';
     
   const textColors = wonderSide === 'day' 
-    ? 'text-black' 
+    ? 'text-slate-800' 
     : 'text-white';
 
   return (
-    <Card className={`border-2 shadow-lg ${borderColors}`}>
+    <Card className="shadow-lg rounded-lg overflow-hidden">
       {/* Compact Header - Always Visible */}
       <div className={`p-4 ${headerColors} ${textColors}`}>
         <div className="flex items-center justify-between gap-2">
-          {/* Day/Night Toggle */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onSideChange(wonderSide === 'day' ? 'night' : 'day')}
-            className={`${textColors} hover:bg-black/20 p-1 h-auto flex-shrink-0`}
-          >
-            {wonderSide === 'day' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </Button>
-          
-          {/* Wonder Name */}
-          <div className="font-bold text-xs sm:text-sm min-w-0 flex-shrink text-center">
-            {wonder.name}
+          {/* Left side: Day/Night Toggle and Wonder Name */}
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onSideChange(wonderSide === 'day' ? 'night' : 'day')}
+              className={`${textColors} hover:bg-black/10 p-1 h-auto flex-shrink-0`}
+            >
+              {wonderSide === 'day' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </Button>
+            
+            <div className="font-bold text-xs sm:text-sm min-w-0 text-left">
+              {wonder.name}
+            </div>
           </div>
           
-          {/* Player Name Input - Responsive width */}
-          <Input
-            value={playerName}
-            onChange={(e) => onNameChange(e.target.value)}
-            placeholder="Player name"
-            className="w-20 sm:w-32 bg-white/90 text-gray-800 placeholder:text-gray-500 border-0 h-8 text-xs sm:text-sm flex-shrink-0"
-          />
-          
-          {/* Expand/Collapse */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className={`${textColors} hover:bg-black/20 p-1 h-auto flex-shrink-0`}
-          >
-            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </Button>
-          
-          {/* Total Score */}
-          <div className="font-bold text-lg min-w-0 flex-shrink-0">
-            {totalScore}
+          {/* Right side: Player Name, Expand, Score, Remove */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Input
+              value={playerName}
+              onChange={(e) => onNameChange(e.target.value)}
+              placeholder="Player name"
+              className="w-16 sm:w-24 bg-white/90 text-gray-800 placeholder:text-gray-500 border-0 h-8 text-xs sm:text-sm"
+            />
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className={`${textColors} hover:bg-black/10 p-1 h-auto`}
+            >
+              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+            
+            <div className="font-bold text-lg min-w-[2rem] text-center">
+              {totalScore}
+            </div>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onRemove}
+              className={`${textColors} hover:bg-red-500/50 p-1 h-auto`}
+            >
+              <X className="w-4 h-4" />
+            </Button>
           </div>
-          
-          {/* Remove Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onRemove}
-            className={`${textColors} hover:bg-red-500/50 p-1 h-auto flex-shrink-0`}
-          >
-            <X className="w-4 h-4" />
-          </Button>
         </div>
       </div>
 
       {/* Expanded Scoring Section */}
       {isExpanded && (
-        <CardContent className="p-4">
+        <CardContent className="p-4 bg-white">
           <div className="space-y-2">
             {scoreCategories.map(category => (
               <div key={category.key} className="border rounded-lg overflow-hidden">
@@ -167,7 +164,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                       onChange={(e) => handleScoreChange(category.key, e.target.value)}
                       placeholder="0"
                       className="w-16 text-center h-8"
-                      min="0"
+                      min={category.key === 'military' ? undefined : "0"}
                       onClick={(e) => e.stopPropagation()}
                     />
                     <Button

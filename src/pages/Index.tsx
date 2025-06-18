@@ -93,7 +93,7 @@ const Index = () => {
         </div>
 
         {/* Wonder Boards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
           {sortedActivePlayers.map(player => (
             <WonderBoard
               key={player.id}
@@ -108,6 +108,11 @@ const Index = () => {
               isEmpty={player.name.trim() === ''}
             />
           ))}
+        </div>
+
+        {/* Creator Credit */}
+        <div className="text-center text-amber-700 text-sm">
+          Created by Benjamin Menashe
         </div>
       </div>
     </div>

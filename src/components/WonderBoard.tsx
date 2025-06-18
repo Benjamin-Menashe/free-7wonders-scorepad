@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -31,7 +30,7 @@ const wonderInfo: Record<WonderBoardType, { name: string; description: string }>
 };
 
 const scoreCategories: { key: ScoreCategory; name: string; color: string; icon: string }[] = [
-  { key: 'wonder', name: 'Wonder Board', color: 'text-amber-600', icon: '🔺' },
+  { key: 'wonder', name: 'Wonder Board', color: 'text-amber-600', icon: '🔻' },
   { key: 'wealth', name: 'Wealth', color: 'text-yellow-600', icon: '🪙' },
   { key: 'military', name: 'Military', color: 'text-red-600', icon: '⚔️' },
   { key: 'culture', name: 'Culture', color: 'text-blue-600', icon: '🏛️' },
@@ -77,32 +76,37 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
     }));
   };
 
+  // Dynamic colors based on day/night
+  const headerColors = wonderSide === 'day' 
+    ? 'bg-gradient-to-r from-sky-400 to-yellow-400' 
+    : 'bg-gradient-to-r from-slate-800 to-black';
+
   return (
     <Card className="border-2 border-amber-200 shadow-lg">
       {/* Compact Header - Always Visible */}
-      <div className="p-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+      <div className={`p-4 text-white ${headerColors}`}>
         <div className="flex items-center justify-between gap-2">
           {/* Day/Night Toggle */}
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onSideChange(wonderSide === 'day' ? 'night' : 'day')}
-            className="text-white hover:bg-white/20 p-1 h-auto"
+            className="text-white hover:bg-white/20 p-1 h-auto flex-shrink-0"
           >
             {wonderSide === 'day' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
           
           {/* Wonder Name */}
-          <div className="font-bold text-sm min-w-0 flex-shrink">
+          <div className="font-bold text-xs sm:text-sm min-w-0 flex-shrink text-center">
             {wonder.name}
           </div>
           
-          {/* Player Name Input - Fixed width for alignment */}
+          {/* Player Name Input - Responsive width */}
           <Input
             value={playerName}
             onChange={(e) => onNameChange(e.target.value)}
             placeholder="Player name"
-            className="w-32 bg-white/90 text-gray-800 placeholder:text-gray-500 border-0 h-8 text-sm"
+            className="w-20 sm:w-32 bg-white/90 text-gray-800 placeholder:text-gray-500 border-0 h-8 text-xs sm:text-sm flex-shrink-0"
           />
           
           {/* Expand/Collapse */}
@@ -110,13 +114,13 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
             variant="ghost"
             size="sm"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-white hover:bg-white/20 p-1 h-auto"
+            className="text-white hover:bg-white/20 p-1 h-auto flex-shrink-0"
           >
             {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
           
           {/* Total Score */}
-          <div className="font-bold text-lg min-w-0">
+          <div className="font-bold text-lg min-w-0 flex-shrink-0">
             {totalScore}
           </div>
           
@@ -125,7 +129,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
             variant="ghost"
             size="sm"
             onClick={onRemove}
-            className="text-white hover:bg-red-500/50 p-1 h-auto"
+            className="text-white hover:bg-red-500/50 p-1 h-auto flex-shrink-0"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -174,7 +178,6 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                     <p className="text-sm text-gray-600">
                       Enter individual victory point components for {category.name.toLowerCase()}
                     </p>
-                    {/* Additional inputs for detailed scoring could go here */}
                   </div>
                 )}
               </div>

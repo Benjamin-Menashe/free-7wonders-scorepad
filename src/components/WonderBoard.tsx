@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, ChevronUp, Trash2, Sun, Moon } from 'lucide-react';
+import { ChevronDown, ChevronUp, X, Sun, Moon } from 'lucide-react';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
 import { calculateTotalScore } from '@/utils/scoreCalculator';
 
@@ -16,18 +16,18 @@ interface WonderBoardProps {
   onNameChange: (name: string) => void;
   onSideChange: (side: WonderSide) => void;
   onScoreChange: (category: ScoreCategory, value: number) => void;
-  onDelete: () => void;
+  onRemove: () => void;
   isEmpty: boolean;
 }
 
 const wonderInfo: Record<WonderBoardType, { name: string; description: string }> = {
   alexandria: { name: 'Alexandria', description: 'The Great Library' },
   babylon: { name: 'Babylon', description: 'The Hanging Gardens' },
-  ephesus: { name: 'Ephesus', description: 'The Temple of Artemis' },
-  giza: { name: 'Giza', description: 'The Great Pyramid' },
-  halicarnassus: { name: 'Halicarnassus', description: 'The Mausoleum' },
+  ephesus: { name: 'Ephesos', description: 'The Temple of Artemis' },
+  giza: { name: 'Gizah', description: 'The Great Pyramid' },
+  halicarnassus: { name: 'Halikarnassos', description: 'The Mausoleum' },
   olympia: { name: 'Olympia', description: 'The Statue of Zeus' },
-  rhodes: { name: 'Rhodes', description: 'The Colossus' },
+  rhodes: { name: 'Rhodos', description: 'The Colossus' },
 };
 
 const scoreCategories: { key: ScoreCategory; name: string; color: string; icon: string }[] = [
@@ -48,7 +48,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
   onNameChange,
   onSideChange,
   onScoreChange,
-  onDelete,
+  onRemove,
   isEmpty,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -61,71 +61,64 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
     onScoreChange(category, numValue);
   };
 
-  if (isEmpty) {
-    return (
-      <Card className="border-2 border-dashed border-gray-300 bg-gray-50 h-32 flex items-center justify-center">
-        <div className="text-center text-gray-500">
-          <div className="text-sm">Empty Wonder Board</div>
-          <div className="text-xs">{wonder.name}</div>
-        </div>
-      </Card>
-    );
-  }
-
   return (
     <Card className="border-2 border-amber-200 shadow-lg">
-      <CardHeader 
-        className="bg-gradient-to-r from-amber-500 to-orange-500 text-white cursor-pointer"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <span className="text-xl">🏛️</span>
-              {wonder.name}
-            </CardTitle>
-            <div className="text-sm opacity-90">{wonder.description}</div>
+      {/* Compact Header - Always Visible */}
+      <div className="p-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+        <div className="flex items-center justify-between gap-2">
+          {/* Wonder Name */}
+          <div className="font-bold text-sm min-w-0 flex-shrink">
+            {wonder.name}
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <div className="text-sm opacity-90">Total</div>
-              <div className="text-2xl font-bold">{totalScore}</div>
-            </div>
-            {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="p-4">
-        {/* Player Name and Controls */}
-        <div className="flex items-center gap-2 mb-4">
+          
+          {/* Day/Night Toggle */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onSideChange(wonderSide === 'day' ? 'night' : 'day')}
+            className="text-white hover:bg-white/20 p-1 h-auto"
+          >
+            {wonderSide === 'day' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </Button>
+          
+          {/* Player Name Input */}
           <Input
             value={playerName}
             onChange={(e) => onNameChange(e.target.value)}
             placeholder="Player name"
-            className="flex-1"
+            className="flex-1 min-w-0 bg-white/90 text-gray-800 placeholder:text-gray-500 border-0 h-8 text-sm"
           />
-          <Button
-            variant={wonderSide === 'day' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => onSideChange(wonderSide === 'day' ? 'night' : 'day')}
-            className="flex items-center gap-1"
-          >
-            {wonderSide === 'day' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            {wonderSide}
-          </Button>
+          
+          {/* Expand/Collapse */}
           <Button
             variant="ghost"
             size="sm"
-            onClick={onDelete}
-            className="text-red-500 hover:text-red-700"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="text-white hover:bg-white/20 p-1 h-auto"
           >
-            <Trash2 className="w-4 h-4" />
+            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </Button>
+          
+          {/* Total Score */}
+          <div className="font-bold text-lg min-w-0">
+            {totalScore}
+          </div>
+          
+          {/* Remove Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRemove}
+            className="text-white hover:bg-red-500/50 p-1 h-auto"
+          >
+            <X className="w-4 h-4" />
           </Button>
         </div>
+      </div>
 
-        {/* Expanded Scoring Section */}
-        {isExpanded && (
+      {/* Expanded Scoring Section */}
+      {isExpanded && (
+        <CardContent className="p-4">
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               {scoreCategories.map(category => (
@@ -171,8 +164,8 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
               </div>
             </div>
           </div>
-        )}
-      </CardContent>
+        </CardContent>
+      )}
     </Card>
   );
 };

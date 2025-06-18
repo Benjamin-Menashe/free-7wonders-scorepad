@@ -12,6 +12,7 @@ interface PlayerData {
   board: WonderBoardType;
   side: WonderSide;
   scores: Record<ScoreCategory, number>;
+  isActive: boolean;
 }
 
 const wonderBoards: WonderBoardType[] = [
@@ -39,6 +40,7 @@ const Index = () => {
       board,
       side: 'day' as WonderSide,
       scores: createEmptyScores(),
+      isActive: true,
     }));
     setPlayers(initialPlayers);
   }, []);
@@ -64,16 +66,22 @@ const Index = () => {
     ));
   };
 
-  const deletePlayer = (playerId: string) => {
+  const removePlayer = (playerId: string) => {
     setPlayers(prev => prev.map(p => 
-      p.id === playerId ? { ...p, name: '', scores: createEmptyScores() } : p
+      p.id === playerId ? { ...p, isActive: false } : p
     ));
   };
 
-  const activePlayers = players.filter(p => p.name.trim() !== '');
+  const activePlayers = players.filter(p => p.isActive);
+  const playingPlayers = activePlayers.filter(p => p.name.trim() !== '');
+  
+  // Sort active players by total score (highest first)
+  const sortedActivePlayers = activePlayers
+    .sort((a, b) => calculateTotalScore(b.scores) - calculateTotalScore(a.scores));
+
   const winner = getWinner(
-    activePlayers.map(p => ({ id: p.id, name: p.name })),
-    Object.fromEntries(activePlayers.map(p => [p.id, p.scores]))
+    playingPlayers.map(p => ({ id: p.id, name: p.name })),
+    Object.fromEntries(playingPlayers.map(p => [p.id, p.scores]))
   );
 
   return (
@@ -104,7 +112,7 @@ const Index = () => {
 
         {/* Wonder Boards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {players.map(player => (
+          {sortedActivePlayers.map(player => (
             <WonderBoard
               key={player.id}
               board={player.board}
@@ -114,18 +122,18 @@ const Index = () => {
               onNameChange={(name) => updatePlayerName(player.id, name)}
               onSideChange={(side) => updatePlayerSide(player.id, side)}
               onScoreChange={(category, value) => updatePlayerScore(player.id, category, value)}
-              onDelete={() => deletePlayer(player.id)}
+              onRemove={() => removePlayer(player.id)}
               isEmpty={player.name.trim() === ''}
             />
           ))}
         </div>
 
         {/* Active Players Summary */}
-        {activePlayers.length > 0 && (
+        {playingPlayers.length > 0 && (
           <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
             <h3 className="text-xl font-bold text-gray-800 mb-4">Current Standings</h3>
             <div className="space-y-2">
-              {activePlayers
+              {playingPlayers
                 .sort((a, b) => calculateTotalScore(b.scores) - calculateTotalScore(a.scores))
                 .map((player, index) => (
                   <div key={player.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">

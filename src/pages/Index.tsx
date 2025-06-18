@@ -24,6 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import WonderBoard from '@/components/WonderBoard';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
 import { calculateTotalScore, getWinner } from '@/utils/scoreCalculator';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
 interface PlayerData {
   id: string;
@@ -306,8 +307,16 @@ const Index = () => {
     }
   };
 
-  const handleDragEnd = () => {
-    return;
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination || activeTab !== 'all-players') {
+      return;
+    }
+
+    const items = Array.from(allPlayersData);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setAllPlayersData(items);
   };
 
   const players = getCurrentPlayers();
@@ -413,24 +422,47 @@ const Index = () => {
               </AlertDialog>
             </div>
 
-            {/* Wonder Boards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {displayPlayers.map((player) => (
-                <WonderBoard
-                  key={player.id}
-                  board={player.board}
-                  playerName={player.name}
-                  wonderSide={player.side}
-                  scores={player.scores}
-                  onNameChange={(name) => updatePlayerName(player.id, name)}
-                  onSideChange={(side) => updatePlayerSide(player.id, side)}
-                  onScoreChange={(category, value) => updatePlayerScore(player.id, category, value)}
-                  onRemove={() => removePlayer(player.id)}
-                  isEmpty={player.name.trim() === ''}
-                  forceExpanded={allExpanded}
-                />
-              ))}
-            </div>
+            {/* Wonder Boards Grid with Drag and Drop */}
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="wonder-boards" direction="horizontal">
+                {(provided) => (
+                  <div 
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                  >
+                    {displayPlayers.map((player, index) => (
+                      <Draggable key={player.id} draggableId={player.id} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className={`transition-transform ${
+                              snapshot.isDragging ? 'rotate-2 scale-105' : ''
+                            }`}
+                          >
+                            <WonderBoard
+                              board={player.board}
+                              playerName={player.name}
+                              wonderSide={player.side}
+                              scores={player.scores}
+                              onNameChange={(name) => updatePlayerName(player.id, name)}
+                              onSideChange={(side) => updatePlayerSide(player.id, side)}
+                              onScoreChange={(category, value) => updatePlayerScore(player.id, category, value)}
+                              onRemove={() => removePlayer(player.id)}
+                              isEmpty={player.name.trim() === ''}
+                              forceExpanded={allExpanded}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
 
             {/* Bottom Control Buttons for All Players */}
             <div className="flex justify-between items-center gap-3 mt-6">

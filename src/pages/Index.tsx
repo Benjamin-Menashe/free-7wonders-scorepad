@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +8,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronUp, ChevronDown, Plus } from 'lucide-react';
+import { ChevronUp, ChevronDown, Plus, Copy } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import WonderBoard from '@/components/WonderBoard';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
 import { calculateTotalScore, getWinner } from '@/utils/scoreCalculator';
@@ -43,6 +43,7 @@ const Index = () => {
   const [gameTitle, setGameTitle] = useState('7 Wonders');
   const [allExpanded, setAllExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('all-players');
+  const { toast } = useToast();
 
   // Initialize with all 7 wonder boards for "All Players" mode
   useEffect(() => {
@@ -130,6 +131,70 @@ const Index = () => {
     setAllExpanded(!allExpanded);
   };
 
+  const copyGameSummary = () => {
+    const players = getCurrentPlayers();
+    const activePlayers = players.filter(p => p.isActive);
+    const playingPlayers = activePlayers.filter(p => p.name.trim() !== '');
+    
+    if (playingPlayers.length === 0) {
+      toast({
+        title: "No players to summarize",
+        description: "Add some players with names first!",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Sort players by total score
+    const sortedPlayers = playingPlayers
+      .sort((a, b) => calculateTotalScore(b.scores) - calculateTotalScore(a.scores));
+
+    let summary = `🏛️ 7 Wonders Game Summary 🏛️\n\n`;
+    
+    if (activeTab === 'solo') {
+      const player = sortedPlayers[0];
+      summary += `Solo Player: ${player.name}\n`;
+      summary += `Wonder: ${player.board.charAt(0).toUpperCase() + player.board.slice(1)} (${player.side === 'day' ? '☀️ Day' : '🌙 Night'} side)\n`;
+      summary += `Total Score: ${calculateTotalScore(player.scores)} points\n\n`;
+      summary += `Score Breakdown:\n`;
+      summary += `🏛️ Wonder: ${player.scores.wonder}\n`;
+      summary += `💰 Wealth: ${player.scores.wealth}\n`;
+      summary += `⚔️ Military: ${player.scores.military}\n`;
+      summary += `🎭 Culture: ${player.scores.culture}\n`;
+      summary += `🏪 Commerce: ${player.scores.commerce}\n`;
+      summary += `🔬 Science: ${player.scores.science}\n`;
+      summary += `🏛️ Guilds: ${player.scores.guilds}\n`;
+    } else {
+      summary += `Final Standings:\n`;
+      sortedPlayers.forEach((player, index) => {
+        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+        summary += `${medal} ${player.name} - ${calculateTotalScore(player.scores)} pts (${player.board.charAt(0).toUpperCase() + player.board.slice(1)}, ${player.side === 'day' ? '☀️' : '🌙'})\n`;
+      });
+      
+      summary += `\nDetailed Scores:\n`;
+      sortedPlayers.forEach(player => {
+        summary += `\n${player.name} (${player.board.charAt(0).toUpperCase() + player.board.slice(1)}):\n`;
+        summary += `🏛️ Wonder: ${player.scores.wonder} | 💰 Wealth: ${player.scores.wealth} | ⚔️ Military: ${player.scores.military}\n`;
+        summary += `🎭 Culture: ${player.scores.culture} | 🏪 Commerce: ${player.scores.commerce} | 🔬 Science: ${player.scores.science} | 🏛️ Guilds: ${player.scores.guilds}\n`;
+      });
+    }
+
+    summary += `\n--- Created with 7 Wonders Digital Scorepad ---`;
+
+    navigator.clipboard.writeText(summary).then(() => {
+      toast({
+        title: "Game summary copied!",
+        description: "The game summary has been copied to your clipboard.",
+      });
+    }).catch(() => {
+      toast({
+        title: "Copy failed",
+        description: "Unable to copy to clipboard. Please try again.",
+        variant: "destructive",
+      });
+    });
+  };
+
   const players = getCurrentPlayers();
   const activePlayers = players.filter(p => p.isActive);
   const playingPlayers = activePlayers.filter(p => p.name.trim() !== '');
@@ -166,15 +231,9 @@ const Index = () => {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <Input
-            value={gameTitle}
-            onChange={(e) => setGameTitle(e.target.value)}
-            className="text-2xl md:text-4xl font-bold text-amber-900 mb-4 text-center border-none bg-transparent shadow-none text-center"
-            placeholder="Game Title"
-          />
-          <h2 className="text-lg text-amber-700 mb-6">
-            Digital Scorepad
-          </h2>
+          <h1 className="text-xl md:text-3xl lg:text-4xl font-bold text-amber-900 mb-6">
+            7 Wonders Digital Scorepad
+          </h1>
         </div>
 
         {/* Tabs */}
@@ -243,6 +302,20 @@ const Index = () => {
                 />
               ))}
             </div>
+
+            {/* Copy Game Summary Button */}
+            {playingPlayers.length > 0 && (
+              <div className="flex justify-center mt-8">
+                <Button 
+                  onClick={copyGameSummary}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <Copy className="w-4 h-4" />
+                  Copy Game Summary
+                </Button>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="solo" className="mt-6">
@@ -292,7 +365,7 @@ const Index = () => {
             {/* Solo Wonder Board */}
             {activePlayers.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-amber-700 text-lg">Select a wonder board to start solo scoring</p>
+                <p className="text-amber-700 text-lg">Select a wonder board to start</p>
               </div>
             ) : (
               <div className="flex justify-center">
@@ -315,12 +388,26 @@ const Index = () => {
                 </div>
               </div>
             )}
+
+            {/* Copy Game Summary Button for Solo */}
+            {playingPlayers.length > 0 && (
+              <div className="flex justify-center mt-8">
+                <Button 
+                  onClick={copyGameSummary}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <Copy className="w-4 h-4" />
+                  Copy Game Summary
+                </Button>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
 
         {/* Creator Credit */}
-        <div className="text-center text-amber-700 text-sm mt-8">
-          Created by Benjamin Menashe
+        <div className="text-center text-amber-700 text-sm mt-8 font-medium">
+          — Created by Benjamin Menashe —
         </div>
       </div>
     </div>

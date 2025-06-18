@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -111,7 +112,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
               setCoins(value);
               calculateWealthScore(value);
             }}
-            className="w-20 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-24 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             min="0"
           />
           <Button
@@ -207,7 +208,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
                     value={card.score || ''}
                     onChange={(e) => updateCultureCard(card.id, parseInt(e.target.value) || 0)}
                     placeholder="Points"
-                    className="w-16 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-20 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     min="0"
                   />
                   <Button
@@ -237,7 +238,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
 
   const renderDefaultDetails = () => (
     <div className="p-3 bg-white border-t">
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-gray-600 text-center">
         Enter individual victory point components
       </p>
     </div>

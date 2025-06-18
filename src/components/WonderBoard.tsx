@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, ChevronUp, X, Sun, Moon } from 'lucide-react';
+import { ChevronDown, ChevronUp, X, Sun, Moon, Minus, Plus } from 'lucide-react';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
 import { calculateTotalScore } from '@/utils/scoreCalculator';
 
@@ -32,7 +31,7 @@ const wonderInfo: Record<WonderBoardType, { name: string; description: string }>
 };
 
 const scoreCategories: { key: ScoreCategory; name: string; bgColor: string; icon: string }[] = [
-  { key: 'wonder', name: 'Wonder Board', bgColor: 'bg-amber-200', icon: '🔶' },
+  { key: 'wonder', name: 'Wonder Board', bgColor: 'bg-amber-800 bg-opacity-30', icon: '🔶' },
   { key: 'wealth', name: 'Wealth', bgColor: 'bg-gray-300', icon: '🪙' },
   { key: 'military', name: 'Military', bgColor: 'bg-red-200', icon: '⚔️' },
   { key: 'culture', name: 'Culture', bgColor: 'bg-blue-200', icon: '🏛️' },
@@ -77,6 +76,14 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
   const handleScoreChange = (category: ScoreCategory, value: string) => {
     const numValue = value === '' ? 0 : parseInt(value) || 0;
     onScoreChange(category, numValue);
+  };
+
+  const adjustScore = (category: ScoreCategory, delta: number) => {
+    const currentScore = scores[category] || 0;
+    const newScore = currentScore + delta;
+    // Only allow negative scores for military
+    if (category !== 'military' && newScore < 0) return;
+    onScoreChange(category, newScore);
   };
 
   const toggleCategoryExpansion = (category: ScoreCategory) => {
@@ -169,6 +176,19 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                   </div>
                   
                   <div className="flex items-center gap-2">
+                    {/* Mobile-friendly score adjustment buttons */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        adjustScore(category.key, -1);
+                      }}
+                      className="p-1 h-8 w-8 hover:bg-black/10"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </Button>
+                    
                     <Input
                       type="number"
                       value={scores[category.key] || ''}
@@ -178,6 +198,19 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                       min={category.key === 'military' ? undefined : "0"}
                       onClick={(e) => e.stopPropagation()}
                     />
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        adjustScore(category.key, 1);
+                      }}
+                      className="p-1 h-8 w-8 hover:bg-black/10"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                    
                     <Button
                       variant="ghost"
                       size="sm"

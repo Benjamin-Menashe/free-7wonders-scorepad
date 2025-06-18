@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trophy, Upload, Expand, Collapse } from 'lucide-react';
+import { Plus, Trophy, Upload, ChevronUp, ChevronDown } from 'lucide-react';
 import WonderBoard from '@/components/WonderBoard';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
 import { calculateTotalScore, getWinner } from '@/utils/scoreCalculator';
@@ -117,7 +117,7 @@ const Index = () => {
               variant="outline"
               className="flex items-center gap-2"
             >
-              <Expand className="w-4 h-4" />
+              <ChevronDown className="w-4 h-4" />
               Expand All
             </Button>
             <Button 
@@ -125,7 +125,7 @@ const Index = () => {
               variant="outline"
               className="flex items-center gap-2"
             >
-              <Collapse className="w-4 h-4" />
+              <ChevronUp className="w-4 h-4" />
               Collapse All
             </Button>
             {hasRemovedBoards && (

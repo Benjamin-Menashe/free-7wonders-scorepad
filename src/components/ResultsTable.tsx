@@ -9,7 +9,7 @@ import { calculateTotalScore } from '@/utils/scoreCalculator';
 
 interface ResultsTableProps {
   players: Player[];
-  scores: Record<string, Record<ScoreCategory, number>>;
+  scores: Record<string, Record<ScoreCategory, number> | {}>;
   onBackToSetup: () => void;
   onBackToScoring: () => void;
 }
@@ -64,12 +64,12 @@ const ResultsTable: React.FC<ResultsTableProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="p-8 text-center">
-          <h2 className="text-4xl font-bold text-amber-900 mb-2">{winner.name}</h2>
+          <h2 className="text-4xl font-bold text-amber-900 mb-2">{winner?.name || 'No Winner'}</h2>
           <p className="text-xl text-amber-700 mb-4">
-            Rules {winner.wonderBoard.charAt(0).toUpperCase() + winner.wonderBoard.slice(1)} with {winner.totalScore} points!
+            Rules {winner?.wonderBoard?.charAt(0).toUpperCase() + winner?.wonderBoard?.slice(1)} with {winner?.totalScore || 0} points!
           </p>
           <Badge variant="outline" className="text-lg px-4 py-2">
-            Wonder of {winner.wonderBoard.charAt(0).toUpperCase() + winner.wonderBoard.slice(1)} ({winner.wonderSide} side)
+            Wonder of {winner?.wonderBoard?.charAt(0).toUpperCase() + winner?.wonderBoard?.slice(1)} ({winner?.wonderSide} side)
           </Badge>
         </CardContent>
       </Card>
@@ -119,7 +119,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({
                       <div>
                         <div className="font-semibold text-gray-900">{player.name}</div>
                         <div className="text-sm text-gray-500">
-                          {player.wonderBoard.charAt(0).toUpperCase() + player.wonderBoard.slice(1)}
+                          {player.wonderBoard?.charAt(0).toUpperCase() + player.wonderBoard?.slice(1)}
                         </div>
                       </div>
                     </td>
@@ -131,7 +131,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({
                     {categories.map(category => (
                       <td key={category.key} className="px-3 py-4 text-center">
                         <span className={`font-semibold ${category.color}`}>
-                          {player.categoryScores[category.key] || 0}
+                          {(player.categoryScores as Record<ScoreCategory, number>)?.[category.key] || 0}
                         </span>
                       </td>
                     ))}

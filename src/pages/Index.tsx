@@ -1,76 +1,80 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Users, Trophy, Calculator } from 'lucide-react';
-import PlayerSetup from '@/components/PlayerSetup';
-import ScoringSection from '@/components/ScoringSection';
-import ResultsTable from '@/components/ResultsTable';
-import { Player, ScoreCategory } from '@/types/game';
-import { calculateTotalScore } from '@/utils/scoreCalculator';
+import { Plus, Trophy } from 'lucide-react';
+import WonderBoard from '@/components/WonderBoard';
+import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
+import { calculateTotalScore, getWinner } from '@/utils/scoreCalculator';
+
+interface PlayerData {
+  id: string;
+  name: string;
+  board: WonderBoardType;
+  side: WonderSide;
+  scores: Record<ScoreCategory, number>;
+}
+
+const wonderBoards: WonderBoardType[] = [
+  'alexandria', 'babylon', 'ephesus', 'giza', 'halicarnassus', 'olympia', 'rhodes'
+];
+
+const createEmptyScores = (): Record<ScoreCategory, number> => ({
+  wonder: 0,
+  wealth: 0,
+  military: 0,
+  culture: 0,
+  commerce: 0,
+  science: 0,
+  guilds: 0
+});
 
 const Index = () => {
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [currentStep, setCurrentStep] = useState<'setup' | 'scoring' | 'results'>('setup');
-  const [scores, setScores] = useState<Record<string, Record<ScoreCategory, number>>>({});
+  const [players, setPlayers] = useState<PlayerData[]>([]);
 
-  const scoreCategories: { key: ScoreCategory; name: string; color: string; icon: string }[] = [
-    { key: 'wonder', name: 'Wonder Board', color: 'bg-amber-500', icon: '🔺' },
-    { key: 'wealth', name: 'Wealth', color: 'bg-yellow-500', icon: '🪙' },
-    { key: 'military', name: 'Military', color: 'bg-red-500', icon: '⚔️' },
-    { key: 'culture', name: 'Culture', color: 'bg-blue-500', icon: '🏛️' },
-    { key: 'commerce', name: 'Commerce', color: 'bg-yellow-600', icon: '🏪' },
-    { key: 'science', name: 'Science', color: 'bg-green-500', icon: '⚗️' },
-    { key: 'guilds', name: 'Guilds', color: 'bg-purple-500', icon: '👥' },
-  ];
-
-  const updateScore = (playerId: string, category: ScoreCategory, value: number) => {
-    setScores(prev => ({
-      ...prev,
-      [playerId]: {
-        ...prev[playerId],
-        [category]: value
-      }
-    }));
-  };
-
-  const initializeScores = () => {
-    const initialScores: Record<string, Record<ScoreCategory, number>> = {};
-    players.forEach(player => {
-      initialScores[player.id] = {
-        wonder: 0,
-        wealth: 0,
-        military: 0,
-        culture: 0,
-        commerce: 0,
-        science: 0,
-        guilds: 0
-      };
-    });
-    setScores(initialScores);
-  };
-
+  // Initialize with all 7 wonder boards
   useEffect(() => {
-    if (players.length > 0 && currentStep === 'scoring') {
-      initializeScores();
-    }
-  }, [players, currentStep]);
+    const initialPlayers: PlayerData[] = wonderBoards.map((board, index) => ({
+      id: `player-${index}`,
+      name: '',
+      board,
+      side: 'day' as WonderSide,
+      scores: createEmptyScores(),
+    }));
+    setPlayers(initialPlayers);
+  }, []);
 
-  const handleStartScoring = () => {
-    if (players.length >= 3) {
-      setCurrentStep('scoring');
-    }
+  const updatePlayerName = (playerId: string, name: string) => {
+    setPlayers(prev => prev.map(p => 
+      p.id === playerId ? { ...p, name } : p
+    ));
   };
 
-  const handleViewResults = () => {
-    setCurrentStep('results');
+  const updatePlayerSide = (playerId: string, side: WonderSide) => {
+    setPlayers(prev => prev.map(p => 
+      p.id === playerId ? { ...p, side } : p
+    ));
   };
 
-  const handleBackToSetup = () => {
-    setCurrentStep('setup');
-    setPlayers([]);
-    setScores({});
+  const updatePlayerScore = (playerId: string, category: ScoreCategory, value: number) => {
+    setPlayers(prev => prev.map(p => 
+      p.id === playerId ? { 
+        ...p, 
+        scores: { ...p.scores, [category]: value }
+      } : p
+    ));
   };
+
+  const deletePlayer = (playerId: string) => {
+    setPlayers(prev => prev.map(p => 
+      p.id === playerId ? { ...p, name: '', scores: createEmptyScores() } : p
+    ));
+  };
+
+  const activePlayers = players.filter(p => p.name.trim() !== '');
+  const winner = getWinner(
+    activePlayers.map(p => ({ id: p.id, name: p.name })),
+    Object.fromEntries(activePlayers.map(p => [p.id, p.scores]))
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
@@ -85,82 +89,60 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Navigation */}
-        <div className="flex justify-center mb-8">
-          <div className="flex bg-white rounded-lg p-1 shadow-lg">
-            <Button
-              variant={currentStep === 'setup' ? 'default' : 'ghost'}
-              className="flex items-center gap-2"
-              onClick={() => setCurrentStep('setup')}
-            >
-              <Users className="w-4 h-4" />
-              Setup
-            </Button>
-            <Button
-              variant={currentStep === 'scoring' ? 'default' : 'ghost'}
-              className="flex items-center gap-2"
-              onClick={() => handleStartScoring()}
-              disabled={players.length < 3}
-            >
-              <Calculator className="w-4 h-4" />
-              Scoring
-            </Button>
-            <Button
-              variant={currentStep === 'results' ? 'default' : 'ghost'}
-              className="flex items-center gap-2"
-              onClick={() => handleViewResults()}
-              disabled={players.length === 0}
-            >
-              <Trophy className="w-4 h-4" />
-              Results
-            </Button>
+        {/* Winner Announcement */}
+        {winner && (
+          <div className="mb-8 text-center">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-6 py-3 rounded-full shadow-lg">
+              <Trophy className="w-6 h-6" />
+              <span className="font-bold text-lg">
+                {winner.name} leads with {winner.score} points!
+              </span>
+              <Trophy className="w-6 h-6" />
+            </div>
           </div>
+        )}
+
+        {/* Wonder Boards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {players.map(player => (
+            <WonderBoard
+              key={player.id}
+              board={player.board}
+              playerName={player.name}
+              wonderSide={player.side}
+              scores={player.scores}
+              onNameChange={(name) => updatePlayerName(player.id, name)}
+              onSideChange={(side) => updatePlayerSide(player.id, side)}
+              onScoreChange={(category, value) => updatePlayerScore(player.id, category, value)}
+              onDelete={() => deletePlayer(player.id)}
+              isEmpty={player.name.trim() === ''}
+            />
+          ))}
         </div>
 
-        {/* Content */}
-        {currentStep === 'setup' && (
-          <PlayerSetup 
-            players={players} 
-            setPlayers={setPlayers}
-            onStartScoring={handleStartScoring}
-          />
-        )}
-
-        {currentStep === 'scoring' && (
-          <div className="space-y-6">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-amber-900 mb-2">Score Calculation</h2>
-              <p className="text-amber-700">Expand each category to enter scores for all players</p>
-            </div>
-            
-            {scoreCategories.map(category => (
-              <ScoringSection
-                key={category.key}
-                category={category}
-                players={players}
-                scores={scores}
-                updateScore={updateScore}
-              />
-            ))}
-
-            <div className="flex justify-center gap-4 mt-8">
-              <Button onClick={() => setCurrentStep('setup')} variant="outline">
-                Back to Setup
-              </Button>
-              <Button onClick={handleViewResults} className="bg-green-600 hover:bg-green-700">
-                View Results
-              </Button>
+        {/* Active Players Summary */}
+        {activePlayers.length > 0 && (
+          <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Current Standings</h3>
+            <div className="space-y-2">
+              {activePlayers
+                .sort((a, b) => calculateTotalScore(b.scores) - calculateTotalScore(a.scores))
+                .map((player, index) => (
+                  <div key={player.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                    <div className="flex items-center gap-3">
+                      <span className="font-bold text-lg">#{index + 1}</span>
+                      <span className="font-medium">{player.name}</span>
+                      <span className="text-sm text-gray-600">
+                        ({player.board} - {player.side})
+                      </span>
+                    </div>
+                    <span className="font-bold text-xl text-amber-600">
+                      {calculateTotalScore(player.scores)} pts
+                    </span>
+                  </div>
+                ))}
             </div>
           </div>
-        )}
-
-        {currentStep === 'results' && (
-          <ResultsTable 
-            players={players}
-            scores={scores}
-            onBackToSetup={handleBackToSetup}
-            onBackToScoring={() => setCurrentStep('scoring')}
-          />
         )}
       </div>
     </div>

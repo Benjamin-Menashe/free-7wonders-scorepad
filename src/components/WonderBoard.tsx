@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -6,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp, X, Sun, Moon, Minus, Plus } from 'lucide-react';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
 import { calculateTotalScore } from '@/utils/scoreCalculator';
-import { scoreCategories, CategoryExpansion } from './ScoreCategories';
+import { scoreCategories } from './ScoreCategories';
+import { CategoryDetails } from './CategoryDetails';
 
 interface WonderBoardProps {
   board: WonderBoardType;
@@ -154,7 +154,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                     {category.name}
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -162,9 +162,9 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                         e.stopPropagation();
                         adjustScore(category.key, -1);
                       }}
-                      className="p-1 h-10 w-10 hover:bg-black/10"
+                      className="p-1 h-6 w-6 hover:bg-black/10"
                     >
-                      <Minus className="w-5 h-5" />
+                      <Minus className="w-3 h-3" />
                     </Button>
                     
                     <Input
@@ -172,7 +172,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                       value={scores[category.key] || ''}
                       onChange={(e) => handleScoreChange(category.key, e.target.value)}
                       placeholder="0"
-                      className="w-14 text-center h-10 text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-12 text-center h-6 text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       min={category.key === 'military' ? undefined : "0"}
                       onClick={(e) => e.stopPropagation()}
                     />
@@ -184,15 +184,15 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                         e.stopPropagation();
                         adjustScore(category.key, 1);
                       }}
-                      className="p-1 h-10 w-10 hover:bg-black/10"
+                      className="p-1 h-6 w-6 hover:bg-black/10"
                     >
-                      <Plus className="w-5 h-5" />
+                      <Plus className="w-3 h-3" />
                     </Button>
                     
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="p-1 h-auto"
+                      className="p-1 h-auto ml-1"
                     >
                       {expandedCategories[category.key] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </Button>
@@ -200,7 +200,10 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                 </div>
 
                 {expandedCategories[category.key] && (
-                  <CategoryExpansion category={category.key} />
+                  <CategoryDetails 
+                    category={category.key} 
+                    onScoreChange={(score) => onScoreChange(category.key, score)}
+                  />
                 )}
               </div>
             ))}

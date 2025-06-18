@@ -40,5 +40,5 @@ export const getWinner = (
     }
   });
   
-  return winner.score > 0 ? winner : null;
+  return winner.score >= 0 ? winner : null;
 };

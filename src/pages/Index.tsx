@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronUp, ChevronDown, Plus, Copy } from 'lucide-react';
+import { ChevronUp, ChevronDown, Plus, Copy, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import WonderBoard from '@/components/WonderBoard';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
@@ -131,7 +131,7 @@ const Index = () => {
     setAllExpanded(!allExpanded);
   };
 
-  const copyGameSummary = () => {
+  const copyGameSummary = (includeDetails: boolean = false) => {
     const players = getCurrentPlayers();
     const activePlayers = players.filter(p => p.isActive);
     const playingPlayers = activePlayers.filter(p => p.name.trim() !== '');
@@ -171,8 +171,8 @@ const Index = () => {
         summary += `${medal} ${player.name} - ${calculateTotalScore(player.scores)} pts (${player.board.charAt(0).toUpperCase() + player.board.slice(1)}, ${player.side === 'day' ? '☀️' : '🌙'})\n`;
       });
       
-      // Only add detailed scores if expand all is active
-      if (allExpanded) {
+      // Only add detailed scores if requested
+      if (includeDetails) {
         summary += `\nDetailed Scores:\n`;
         sortedPlayers.forEach(player => {
           summary += `\n${player.name} (${player.board.charAt(0).toUpperCase() + player.board.slice(1)}):\n`;
@@ -186,8 +186,9 @@ const Index = () => {
     summary += `https://7wonders.lovable.app`;
 
     navigator.clipboard.writeText(summary).then(() => {
+      const summaryType = includeDetails ? 'Detailed game summary' : 'Game summary';
       toast({
-        title: "Game summary copied!",
+        title: `${summaryType} copied!`,
         description: "The game summary has been copied to your clipboard.",
         duration: 1000,
       });
@@ -199,6 +200,31 @@ const Index = () => {
         duration: 1000,
       });
     });
+  };
+
+  const removeEmptyBoards = () => {
+    if (activeTab === 'all-players') {
+      const emptyBoardsCount = allPlayersData.filter(p => p.isActive && p.name.trim() === '').length;
+      
+      if (emptyBoardsCount === 0) {
+        toast({
+          title: "No empty boards",
+          description: "All active boards have player names.",
+          duration: 1000,
+        });
+        return;
+      }
+
+      setAllPlayersData(allPlayersData.map(p => 
+        p.isActive && p.name.trim() === '' ? { ...p, isActive: false } : p
+      ));
+
+      toast({
+        title: "Empty boards removed",
+        description: `Removed ${emptyBoardsCount} empty board${emptyBoardsCount > 1 ? 's' : ''}.`,
+        duration: 1000,
+      });
+    }
   };
 
   const players = getCurrentPlayers();
@@ -288,6 +314,15 @@ const Index = () => {
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              <Button 
+                onClick={removeEmptyBoards}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                Remove Empty Boards
+              </Button>
             </div>
 
             {/* Wonder Boards Grid */}
@@ -309,16 +344,24 @@ const Index = () => {
               ))}
             </div>
 
-            {/* Copy Game Summary Button */}
+            {/* Copy Game Summary Buttons */}
             {playingPlayers.length > 0 && (
-              <div className="flex justify-center mt-8">
+              <div className="flex flex-wrap justify-center gap-3 mt-8">
                 <Button 
-                  onClick={copyGameSummary}
+                  onClick={() => copyGameSummary(false)}
                   variant="outline"
                   className="flex items-center gap-2"
                 >
                   <Copy className="w-4 h-4" />
-                  Copy Game Summary
+                  Game Summary
+                </Button>
+                <Button 
+                  onClick={() => copyGameSummary(true)}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <Copy className="w-4 h-4" />
+                  Detailed Summary
                 </Button>
               </div>
             )}
@@ -399,7 +442,7 @@ const Index = () => {
             {playingPlayers.length > 0 && (
               <div className="flex justify-center mt-8">
                 <Button 
-                  onClick={copyGameSummary}
+                  onClick={() => copyGameSummary(false)}
                   variant="outline"
                   className="flex items-center gap-2"
                 >

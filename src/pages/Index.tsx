@@ -225,7 +225,7 @@ const Index = () => {
     }
 
     summary += `\n--- Created with 7 Wonders Digital Scorepad by Benjamin Menashe ---\n`;
-    summary += `https://7wonders.lovable.app`;
+    summary += `https://free-7wonders-scorepad.lovable.app/`;
 
     navigator.clipboard.writeText(summary).then(() => {
       const summaryType = includeDetails ? 'Detailed game summary' : 'Game summary';

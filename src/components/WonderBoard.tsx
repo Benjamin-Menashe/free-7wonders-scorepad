@@ -175,7 +175,11 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
               onClick={() => onSideChange(wonderSide === 'day' ? 'night' : 'day')}
               className={`${textColors} hover:bg-black/10 p-1 h-auto flex-shrink-0`}
             >
-              {wonderSide === 'day' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {wonderSide === 'day' ? (
+                <Sun className="w-4 h-4" />
+              ) : (
+                <Moon className="w-4 h-4" color="white" />
+              )}
             </Button>
             
             <div className="font-bold text-xs min-w-0 text-left mr-1">

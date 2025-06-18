@@ -33,6 +33,7 @@ interface PlayerData {
   side: WonderSide;
   scores: Record<ScoreCategory, number>;
   isActive: boolean;
+  resetKey?: number; // Add reset key to force component re-render
 }
 
 const wonderBoards: WonderBoardType[] = [
@@ -66,6 +67,7 @@ const Index = () => {
       side: 'day' as WonderSide,
       scores: createEmptyScores(),
       isActive: true,
+      resetKey: 0,
     }));
     setAllPlayersData(initialPlayers);
   }, []);
@@ -149,6 +151,8 @@ const Index = () => {
   };
 
   const startNewGame = () => {
+    const currentResetKey = Date.now();
+    
     if (activeTab === 'all-players') {
       const initialPlayers: PlayerData[] = wonderBoards.map((board, index) => ({
         id: `player-${index}`,
@@ -157,6 +161,7 @@ const Index = () => {
         side: 'day' as WonderSide,
         scores: createEmptyScores(),
         isActive: true,
+        resetKey: currentResetKey,
       }));
       setAllPlayersData(initialPlayers);
     } else {
@@ -271,15 +276,19 @@ const Index = () => {
   };
 
   const resetScores = () => {
+    const currentResetKey = Date.now();
+    
     if (activeTab === 'all-players') {
       setAllPlayersData(allPlayersData.map(p => ({
         ...p,
-        scores: createEmptyScores()
+        scores: createEmptyScores(),
+        resetKey: currentResetKey,
       })));
     } else {
       setSoloPlayerData(soloPlayerData.map(p => ({
         ...p,
-        scores: createEmptyScores()
+        scores: createEmptyScores(),
+        resetKey: currentResetKey,
       })));
     }
     
@@ -444,6 +453,7 @@ const Index = () => {
                             }}
                           >
                             <WonderBoard
+                              key={`${player.id}-${player.resetKey}`} // Force re-render when resetKey changes
                               board={player.board}
                               playerName={player.name}
                               wonderSide={player.side}
@@ -586,7 +596,7 @@ const Index = () => {
                 <div className="w-full max-w-md">
                   {displayPlayers.map(player => (
                     <WonderBoard
-                      key={player.id}
+                      key={`${player.id}-${player.resetKey}`} // Force re-render when resetKey changes
                       board={player.board}
                       playerName={player.name}
                       wonderSide={player.side}

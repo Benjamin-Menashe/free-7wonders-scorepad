@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -403,8 +404,8 @@ const Index = () => {
               ))}
             </div>
 
-            {/* Bottom Control Buttons for All Players - Reversed Order */}
-            <div className="flex flex-wrap justify-center gap-3 mt-6">
+            {/* Bottom Control Buttons for All Players */}
+            <div className="flex justify-between items-center gap-3 mt-6">
               <Button 
                 onClick={removeEmptyBoards}
                 variant="outline"
@@ -420,7 +421,7 @@ const Index = () => {
                   <Button 
                     variant="outline"
                     size="sm"
-                    className="flex items-center gap-2"
+                    className={`flex items-center gap-2 ${removedBoards.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                     disabled={removedBoards.length === 0}
                   >
                     <Plus className="w-4 h-4" />
@@ -455,7 +456,7 @@ const Index = () => {
                   className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4"
                 >
                   <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden xs:inline">Game </span>Summary
+                  Summary
                 </Button>
                 <Button 
                   onClick={() => copyGameSummary(true)}
@@ -463,7 +464,7 @@ const Index = () => {
                   className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4"
                 >
                   <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden xs:inline">Detailed </span>Summary
+                  Details
                 </Button>
               </div>
             )}

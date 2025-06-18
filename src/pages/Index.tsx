@@ -424,7 +424,7 @@ const Index = () => {
 
             {/* Wonder Boards Grid with Drag and Drop */}
             <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="wonder-boards" direction="horizontal">
+              <Droppable droppableId="wonder-boards">
                 {(provided) => (
                   <div 
                     {...provided.droppableProps}
@@ -439,8 +439,11 @@ const Index = () => {
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                             className={`transition-transform ${
-                              snapshot.isDragging ? 'rotate-2 scale-105' : ''
+                              snapshot.isDragging ? 'rotate-2 scale-105 z-50' : ''
                             }`}
+                            style={{
+                              ...provided.draggableProps.style,
+                            }}
                           >
                             <WonderBoard
                               board={player.board}

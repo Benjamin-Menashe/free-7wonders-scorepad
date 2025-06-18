@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -130,18 +129,16 @@ const Index = () => {
     const currentPlayers = getCurrentPlayers();
     
     if (activeTab === 'solo') {
-      // In solo mode, only allow one board
-      if (currentPlayers.length === 0) {
-        const newPlayer: PlayerData = {
-          id: `solo-player-${Date.now()}`,
-          name: '',
-          board: boardType,
-          side: 'day' as WonderSide,
-          scores: createEmptyScores(),
-          isActive: true,
-        };
-        setSoloPlayerData([newPlayer]);
-      }
+      // In solo mode, replace the existing board or add a new one
+      const newPlayer: PlayerData = {
+        id: `solo-player-${Date.now()}`,
+        name: currentPlayers.length > 0 ? currentPlayers[0].name : '',
+        board: boardType,
+        side: currentPlayers.length > 0 ? currentPlayers[0].side : 'day' as WonderSide,
+        scores: currentPlayers.length > 0 ? currentPlayers[0].scores : createEmptyScores(),
+        isActive: true,
+      };
+      setSoloPlayerData([newPlayer]);
     } else {
       // In all players mode, reactivate the board
       setCurrentPlayers(currentPlayers.map(p => 

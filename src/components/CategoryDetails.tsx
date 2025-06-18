@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Minus, X } from 'lucide-react';
@@ -8,6 +8,15 @@ import { ScoreCategory } from '@/types/game';
 interface CategoryDetailsProps {
   category: ScoreCategory;
   onScoreChange: (score: number) => void;
+  // State props for different categories
+  coins?: number;
+  onCoinsChange?: (coins: number) => void;
+  militaryTokens?: MilitaryTokens;
+  onMilitaryTokensChange?: (tokens: MilitaryTokens) => void;
+  scienceSymbols?: ScienceSymbols;
+  onScienceSymbolsChange?: (symbols: ScienceSymbols) => void;
+  cultureCards?: CultureCard[];
+  onCultureCardsChange?: (cards: CultureCard[]) => void;
 }
 
 interface MilitaryTokens {
@@ -28,27 +37,18 @@ interface CultureCard {
   score: number;
 }
 
-export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onScoreChange }) => {
-  const [coins, setCoins] = useState(0);
-  const [militaryTokens, setMilitaryTokens] = useState<MilitaryTokens>({
-    minusOne: 0,
-    one: 0,
-    three: 0,
-    five: 0
-  });
-  const [scienceSymbols, setScienceSymbols] = useState<ScienceSymbols>({
-    gear: 0,
-    tablet: 0,
-    compass: 0
-  });
-  const [cultureCards, setCultureCards] = useState<CultureCard[]>([]);
-
-  const adjustValue = (currentValue: number, delta: number, setter: (value: number) => void, callback?: () => void) => {
-    const newValue = Math.max(0, currentValue + delta);
-    setter(newValue);
-    if (callback) callback();
-  };
-
+export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ 
+  category, 
+  onScoreChange,
+  coins = 0,
+  onCoinsChange,
+  militaryTokens = { minusOne: 0, one: 0, three: 0, five: 0 },
+  onMilitaryTokensChange,
+  scienceSymbols = { gear: 0, tablet: 0, compass: 0 },
+  onScienceSymbolsChange,
+  cultureCards = [],
+  onCultureCardsChange
+}) => {
   const calculateWealthScore = (coinCount: number) => {
     const score = Math.floor(coinCount / 3);
     onScoreChange(score);
@@ -62,15 +62,11 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
   };
 
   const calculateScienceScore = (symbols: ScienceSymbols) => {
-    // Identical symbols: each type squared
     const gearScore = symbols.gear * symbols.gear;
     const tabletScore = symbols.tablet * symbols.tablet;
     const compassScore = symbols.compass * symbols.compass;
-    
-    // Sets of 3 different symbols: 7 points per complete set
     const minSymbols = Math.min(symbols.gear, symbols.tablet, symbols.compass);
     const setScore = minSymbols * 7;
-    
     const totalScore = gearScore + tabletScore + compassScore + setScore;
     onScoreChange(totalScore);
     return totalScore;
@@ -84,26 +80,26 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
 
   const updateMilitaryToken = (type: keyof MilitaryTokens, delta: number) => {
     const newTokens = { ...militaryTokens, [type]: Math.max(0, militaryTokens[type] + delta) };
-    setMilitaryTokens(newTokens);
+    onMilitaryTokensChange?.(newTokens);
     calculateMilitaryScore(newTokens);
   };
 
   const updateScienceSymbol = (type: keyof ScienceSymbols, delta: number) => {
     const newSymbols = { ...scienceSymbols, [type]: Math.max(0, scienceSymbols[type] + delta) };
-    setScienceSymbols(newSymbols);
+    onScienceSymbolsChange?.(newSymbols);
     calculateScienceScore(newSymbols);
   };
 
   const addCultureCard = () => {
     const newCard = { id: `card-${Date.now()}`, score: 0 };
-    const newCards = [newCard, ...cultureCards]; // Add to top
-    setCultureCards(newCards);
+    const newCards = [newCard, ...cultureCards];
+    onCultureCardsChange?.(newCards);
     calculateCultureScore(newCards);
   };
 
   const removeCultureCard = (cardId: string) => {
     const newCards = cultureCards.filter(card => card.id !== cardId);
-    setCultureCards(newCards);
+    onCultureCardsChange?.(newCards);
     calculateCultureScore(newCards);
   };
 
@@ -111,7 +107,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
     const newCards = cultureCards.map(card => 
       card.id === cardId ? { ...card, score } : card
     );
-    setCultureCards(newCards);
+    onCultureCardsChange?.(newCards);
     calculateCultureScore(newCards);
   };
 
@@ -131,7 +127,11 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => adjustValue(coins, -1, setCoins, () => calculateWealthScore(coins - 1))}
+            onClick={() => {
+              const newCoins = Math.max(0, coins - 1);
+              onCoinsChange?.(newCoins);
+              calculateWealthScore(newCoins);
+            }}
             className="p-1 h-6 w-6 hover:bg-gray-200"
           >
             <Minus className="w-3 h-3" />
@@ -141,7 +141,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
             value={coins || ''}
             onChange={(e) => {
               const value = parseInt(e.target.value) || 0;
-              setCoins(value);
+              onCoinsChange?.(value);
               calculateWealthScore(value);
             }}
             className="w-24 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -150,7 +150,11 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => adjustValue(coins, 1, setCoins, () => calculateWealthScore(coins + 1))}
+            onClick={() => {
+              const newCoins = coins + 1;
+              onCoinsChange?.(newCoins);
+              calculateWealthScore(newCoins);
+            }}
             className="p-1 h-6 w-6 hover:bg-gray-200"
           >
             <Plus className="w-3 h-3" />
@@ -188,7 +192,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
                 onChange={(e) => {
                   const value = parseInt(e.target.value) || 0;
                   const newTokens = { ...militaryTokens, [type]: Math.max(0, value) };
-                  setMilitaryTokens(newTokens);
+                  onMilitaryTokensChange?.(newTokens);
                   calculateMilitaryScore(newTokens);
                 }}
                 className="w-16 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -210,7 +214,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
   );
 
   const renderScienceDetails = () => (
-    <div className="p-3 bg-white border-t">
+    <div className="p-3 border-t" style={{ backgroundColor: '#ede9e6' }}>
       <div className="space-y-2 flex flex-col items-center">
         {[
           { type: 'gear' as keyof ScienceSymbols, name: 'Gear', image: '/lovable-uploads/57cf6465-fad3-46e7-aab6-0078037e7d97.png' },
@@ -236,7 +240,7 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
                 onChange={(e) => {
                   const value = parseInt(e.target.value) || 0;
                   const newSymbols = { ...scienceSymbols, [type]: Math.max(0, value) };
-                  setScienceSymbols(newSymbols);
+                  onScienceSymbolsChange?.(newSymbols);
                   calculateScienceScore(newSymbols);
                 }}
                 className="w-16 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -313,14 +317,6 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ category, onSc
           </div>
         )}
       </div>
-    </div>
-  );
-
-  const renderDefaultDetails = () => (
-    <div className="p-3 bg-white border-t">
-      <p className="text-sm text-gray-600 text-center">
-        Enter individual victory point components
-      </p>
     </div>
   );
 

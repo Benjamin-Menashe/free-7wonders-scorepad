@@ -22,6 +22,24 @@ interface WonderBoardProps {
   forceExpanded?: boolean;
 }
 
+interface MilitaryTokens {
+  minusOne: number;
+  one: number;
+  three: number;
+  five: number;
+}
+
+interface ScienceSymbols {
+  gear: number;
+  tablet: number;
+  compass: number;
+}
+
+interface CultureCard {
+  id: string;
+  score: number;
+}
+
 const wonderInfo: Record<WonderBoardType, { name: string; description: string }> = {
   alexandria: { name: 'Alexandria', description: 'The Great Library' },
   babylon: { name: 'Babylon', description: 'The Hanging Gardens' },
@@ -56,13 +74,27 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
   });
   const [isEditingName, setIsEditingName] = useState(false);
   
+  // State for category details
+  const [coins, setCoins] = useState(0);
+  const [militaryTokens, setMilitaryTokens] = useState<MilitaryTokens>({
+    minusOne: 0,
+    one: 0,
+    three: 0,
+    five: 0
+  });
+  const [scienceSymbols, setScienceSymbols] = useState<ScienceSymbols>({
+    gear: 0,
+    tablet: 0,
+    compass: 0
+  });
+  const [cultureCards, setCultureCards] = useState<CultureCard[]>([]);
+  
   const totalScore = calculateTotalScore(scores);
   const wonder = wonderInfo[board];
 
   useEffect(() => {
     if (forceExpanded !== undefined) {
       setIsExpanded(forceExpanded);
-      // When expand all is triggered, collapse all category expansions
       if (forceExpanded) {
         setExpandedCategories({
           wonder: false,
@@ -130,7 +162,6 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
               {wonder.name}
             </div>
 
-            {/* Player Name - moved to right side with input styling */}
             <div className="flex-1 min-w-0 flex justify-end">
               {isEditingName ? (
                 <form onSubmit={handleNameSubmit} className="flex items-center">
@@ -243,6 +274,14 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                   <CategoryDetails 
                     category={category.key} 
                     onScoreChange={(score) => onScoreChange(category.key, score)}
+                    coins={coins}
+                    onCoinsChange={setCoins}
+                    militaryTokens={militaryTokens}
+                    onMilitaryTokensChange={setMilitaryTokens}
+                    scienceSymbols={scienceSymbols}
+                    onScienceSymbolsChange={setScienceSymbols}
+                    cultureCards={cultureCards}
+                    onCultureCardsChange={setCultureCards}
                   />
                 )}
               </div>

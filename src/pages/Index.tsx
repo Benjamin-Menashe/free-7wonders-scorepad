@@ -403,50 +403,8 @@ const Index = () => {
               ))}
             </div>
 
-            {/* Bottom Control Buttons for All Players */}
+            {/* Bottom Control Buttons for All Players - Reversed Order */}
             <div className="flex flex-wrap justify-center gap-3 mt-6">
-              {removedBoards.length === 0 ? (
-                <Button 
-                  onClick={addAllBoards}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-2"
-                  disabled={removedBoards.length === 0}
-                >
-                  <Plus className="w-4 h-4" />
-                  All Boards Active
-                </Button>
-              ) : (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-2"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Add Boards
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={addAllBoards}>
-                      Add All Boards
-                    </DropdownMenuItem>
-                    <DropdownMenuItem disabled className="text-xs font-semibold">
-                      Or select specific:
-                    </DropdownMenuItem>
-                    {removedBoards.map(board => (
-                      <DropdownMenuItem 
-                        key={board.id}
-                        onClick={() => addSpecificBoard(board.board)}
-                      >
-                        {board.board.charAt(0).toUpperCase() + board.board.slice(1)}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-
               <Button 
                 onClick={removeEmptyBoards}
                 variant="outline"
@@ -456,11 +414,41 @@ const Index = () => {
                 <Trash2 className="w-4 h-4" />
                 Remove Empty Boards
               </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                    disabled={removedBoards.length === 0}
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Boards
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={addAllBoards}>
+                    Add All Boards
+                  </DropdownMenuItem>
+                  <DropdownMenuItem disabled className="text-xs font-semibold">
+                    Or select specific:
+                  </DropdownMenuItem>
+                  {removedBoards.map(board => (
+                    <DropdownMenuItem 
+                      key={board.id}
+                      onClick={() => addSpecificBoard(board.board)}
+                    >
+                      {board.board.charAt(0).toUpperCase() + board.board.slice(1)}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {/* Copy Game Summary Buttons */}
             {playingPlayers.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-3 mt-8">
+              <div className="flex flex-wrap justify-center gap-3 mt-8 bg-gray-100 p-3 rounded-lg">
                 <Button 
                   onClick={() => copyGameSummary(false)}
                   variant="outline"
@@ -589,7 +577,7 @@ const Index = () => {
 
             {/* Copy Game Summary Button for Solo */}
             {playingPlayers.length > 0 && (
-              <div className="flex justify-center mt-8">
+              <div className="flex justify-center mt-8 bg-gray-100 p-3 rounded-lg">
                 <Button 
                   onClick={() => copyGameSummary(false)}
                   variant="outline"

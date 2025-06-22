@@ -51,6 +51,17 @@ const createEmptyScores = (): Record<ScoreCategory, number> => ({
   guilds: 0
 });
 
+const wonderInfo: Record<WonderBoardType, { name: string; description: string }> = {
+  alexandria: { name: 'Alexandria', description: 'The Great Library' },
+  babylon: { name: 'Babylon', description: 'The Hanging Gardens' },
+  ephesus: { name: 'Ephesos', description: 'The Temple of Artemis' },
+  giza: { name: 'Gizah', description: 'The Great Pyramid' },
+  halicarnassus: { name: 'Halikarnassos', description: 'The Mausoleum' },
+  olympia: { name: 'Olympia', description: 'The Statue of Zeus' },
+  rhodes: { name: 'Rhodos', description: 'The Colossus' },
+  unassigned: { name: 'Add board', description: 'No board selected' },
+};
+
 const Index = () => {
   const [allPlayersData, setAllPlayersData] = useState<PlayerData[]>([]);
   const [soloPlayerData, setSoloPlayerData] = useState<PlayerData[]>([]);
@@ -230,7 +241,7 @@ const Index = () => {
     
     if (activeTab === 'solo') {
       const player = sortedPlayers[0];
-      const boardName = player.board ? player.board.charAt(0).toUpperCase() + player.board.slice(1) : 'Unknown';
+      const boardName = player.board ? wonderInfo[player.board].name : 'Unknown';
       summary += `${player.name} - ${boardName} (${player.side === 'day' ? '☀️' : '🌙'})\n`;
       summary += `Total Score: ${calculateTotalScore(player.scores)} points\n\n`;
       summary += `Score Breakdown:\n`;
@@ -245,7 +256,7 @@ const Index = () => {
       summary += `Final Standings:\n`;
       sortedPlayers.forEach((player, index) => {
         const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-        const boardName = player.board ? player.board.charAt(0).toUpperCase() + player.board.slice(1) : 'Unknown';
+        const boardName = player.board ? wonderInfo[player.board].name : 'Unknown';
         summary += `${medal} ${player.name} - ${calculateTotalScore(player.scores)} pts (${boardName}, ${player.side === 'day' ? '☀️' : '🌙'})\n`;
       });
       
@@ -253,7 +264,7 @@ const Index = () => {
       if (includeDetails) {
         summary += `\nDetailed Scores:\n`;
         sortedPlayers.forEach(player => {
-          const boardName = player.board ? player.board.charAt(0).toUpperCase() + player.board.slice(1) : 'Unknown';
+          const boardName = player.board ? wonderInfo[player.board].name : 'Unknown';
           summary += `\n${player.name} (${boardName}):\n`;
           summary += `🔶 Wonder: ${player.scores.wonder} | 🪙 Wealth: ${player.scores.wealth} | ⚔️ Military: ${player.scores.military}\n`;
           summary += `🏛️ Culture: ${player.scores.culture} | 🏺 Commerce: ${player.scores.commerce} | 📖 Science: ${player.scores.science} | 👥 Guilds: ${player.scores.guilds}\n`;

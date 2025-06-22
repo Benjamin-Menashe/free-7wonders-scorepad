@@ -227,7 +227,8 @@ const Index = () => {
     
     if (activeTab === 'solo') {
       const player = sortedPlayers[0];
-      summary += `${player.name} - ${player.board.charAt(0).toUpperCase() + player.board.slice(1)} (${player.side === 'day' ? '☀️' : '🌙'})\n`;
+      const boardName = player.board ? player.board.charAt(0).toUpperCase() + player.board.slice(1) : 'Unknown';
+      summary += `${player.name} - ${boardName} (${player.side === 'day' ? '☀️' : '🌙'})\n`;
       summary += `Total Score: ${calculateTotalScore(player.scores)} points\n\n`;
       summary += `Score Breakdown:\n`;
       summary += `🔶 Wonder: ${player.scores.wonder}\n`;
@@ -241,14 +242,16 @@ const Index = () => {
       summary += `Final Standings:\n`;
       sortedPlayers.forEach((player, index) => {
         const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-        summary += `${medal} ${player.name} - ${calculateTotalScore(player.scores)} pts (${player.board.charAt(0).toUpperCase() + player.board.slice(1)}, ${player.side === 'day' ? '☀️' : '🌙'})\n`;
+        const boardName = player.board ? player.board.charAt(0).toUpperCase() + player.board.slice(1) : 'Unknown';
+        summary += `${medal} ${player.name} - ${calculateTotalScore(player.scores)} pts (${boardName}, ${player.side === 'day' ? '☀️' : '🌙'})\n`;
       });
       
       // Only add detailed scores if requested
       if (includeDetails) {
         summary += `\nDetailed Scores:\n`;
         sortedPlayers.forEach(player => {
-          summary += `\n${player.name} (${player.board.charAt(0).toUpperCase() + player.board.slice(1)}):\n`;
+          const boardName = player.board ? player.board.charAt(0).toUpperCase() + player.board.slice(1) : 'Unknown';
+          summary += `\n${player.name} (${boardName}):\n`;
           summary += `🔶 Wonder: ${player.scores.wonder} | 🪙 Wealth: ${player.scores.wealth} | ⚔️ Military: ${player.scores.military}\n`;
           summary += `🏛️ Culture: ${player.scores.culture} | 🏺 Commerce: ${player.scores.commerce} | 📖 Science: ${player.scores.science} | 👥 Guilds: ${player.scores.guilds}\n`;
         });

@@ -21,8 +21,11 @@ import {
 } from '@/components/ui/alert-dialog';
 import { ChevronUp, ChevronDown, Plus, Copy, Trash2, RotateCcw, ArrowUpDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { usePageProtection } from '@/hooks/usePageProtection';
 import WonderBoard from '@/components/WonderBoard';
+import PlayerSetup from '@/components/PlayerSetup';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
+import { Player } from '@/types/player';
 import { calculateTotalScore, getWinner } from '@/utils/scoreCalculator';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
@@ -33,7 +36,7 @@ interface PlayerData {
   side: WonderSide;
   scores: Record<ScoreCategory, number>;
   isActive: boolean;
-  resetKey?: number; // Add reset key to force component re-render
+  resetKey?: number;
 }
 
 const wonderBoards: WonderBoardType[] = [
@@ -56,7 +59,15 @@ const Index = () => {
   const [gameTitle, setGameTitle] = useState('7 Wonders');
   const [allExpanded, setAllExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('all-players');
+  const [showPlayerSetup, setShowPlayerSetup] = useState(true);
+  const [setupPlayers, setSetupPlayers] = useState<Player[]>([]);
   const { toast } = useToast();
+
+  // Check if there's unsaved game data for page protection
+  const hasUnsavedData = allPlayersData.some(p => p.isActive && (p.name.trim() !== '' || Object.values(p.scores).some(score => score > 0))) ||
+                        soloPlayerData.some(p => p.name.trim() !== '' || Object.values(p.scores).some(score => score > 0));
+  
+  usePageProtection(hasUnsavedData);
 
   // Initialize with all 7 wonder boards for "All Players" mode
   useEffect(() => {
@@ -72,6 +83,22 @@ const Index = () => {
     setAllPlayersData(initialPlayers);
   }, []);
 
+  // Add global event listener for Enter key on number inputs
+  useEffect(() => {
+    const handleGlobalKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement;
+      if (event.key === 'Enter' && target.tagName === 'INPUT' && target.getAttribute('type') === 'number') {
+        target.blur(); // This will save the input and exit typing mode
+        event.preventDefault();
+      }
+    };
+
+    document.addEventListener('keydown', handleGlobalKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleGlobalKeyDown);
+    };
+  }, []);
+
   const getCurrentPlayers = () => {
     return activeTab === 'all-players' ? allPlayersData : soloPlayerData;
   };
@@ -82,6 +109,38 @@ const Index = () => {
     } else {
       setSoloPlayerData(players);
     }
+  };
+
+  const handleStartScoring = () => {
+    // Convert setup players to player data for all players mode
+    const playerData: PlayerData[] = setupPlayers.map((player, index) => ({
+      id: player.id,
+      name: player.name,
+      board: player.wonderBoard,
+      side: player.wonderSide,
+      scores: createEmptyScores(),
+      isActive: true,
+      resetKey: 0,
+    }));
+
+    // Fill remaining slots with inactive boards
+    const usedBoards = setupPlayers.map(p => p.wonderBoard);
+    const remainingBoards = wonderBoards.filter(board => !usedBoards.includes(board));
+    
+    remainingBoards.forEach((board, index) => {
+      playerData.push({
+        id: `unused-${index}`,
+        name: '',
+        board,
+        side: 'day' as WonderSide,
+        scores: createEmptyScores(),
+        isActive: false,
+        resetKey: 0,
+      });
+    });
+
+    setAllPlayersData(playerData);
+    setShowPlayerSetup(false);
   };
 
   const updatePlayerName = (playerId: string, name: string) => {
@@ -107,10 +166,8 @@ const Index = () => {
 
   const removePlayer = (playerId: string) => {
     if (activeTab === 'solo') {
-      // In solo mode, remove the player completely
       setSoloPlayerData([]);
     } else {
-      // In all players mode, just deactivate
       setCurrentPlayers(getCurrentPlayers().map(p => 
         p.id === playerId ? { ...p, isActive: false } : p
       ));
@@ -132,7 +189,6 @@ const Index = () => {
     const currentPlayers = getCurrentPlayers();
     
     if (activeTab === 'solo') {
-      // In solo mode, replace the existing board or add a new one
       const newPlayer: PlayerData = {
         id: `solo-player-${Date.now()}`,
         name: currentPlayers.length > 0 ? currentPlayers[0].name : '',
@@ -143,7 +199,6 @@ const Index = () => {
       };
       setSoloPlayerData([newPlayer]);
     } else {
-      // In all players mode, reactivate the board
       setCurrentPlayers(currentPlayers.map(p => 
         p.board === boardType ? { ...p, isActive: true } : p
       ));
@@ -154,6 +209,8 @@ const Index = () => {
     const currentResetKey = Date.now();
     
     if (activeTab === 'all-players') {
+      setShowPlayerSetup(true);
+      setSetupPlayers([]);
       const initialPlayers: PlayerData[] = wonderBoards.map((board, index) => ({
         id: `player-${index}`,
         name: '',
@@ -194,7 +251,6 @@ const Index = () => {
       return;
     }
 
-    // Sort players by total score
     const sortedPlayers = playingPlayers
       .sort((a, b) => calculateTotalScore(b.scores) - calculateTotalScore(a.scores));
 
@@ -219,7 +275,6 @@ const Index = () => {
         summary += `${medal} ${player.name} - ${calculateTotalScore(player.scores)} pts (${player.board.charAt(0).toUpperCase() + player.board.slice(1)}, ${player.side === 'day' ? '☀️' : '🌙'})\n`;
       });
       
-      // Only add detailed scores if requested
       if (includeDetails) {
         summary += `\nDetailed Scores:\n`;
         sortedPlayers.forEach(player => {
@@ -341,15 +396,40 @@ const Index = () => {
   // Get available boards for dropdown
   const getAvailableBoards = () => {
     if (activeTab === 'solo') {
-      // In solo mode, show all boards if no player exists, otherwise show none
       return activePlayers.length === 0 ? wonderBoards : [];
     } else {
-      // In all players mode, show removed boards
       return removedBoards.map(board => board.board);
     }
   };
 
   const availableBoards = getAvailableBoards();
+
+  // Show player setup for all players mode
+  if (activeTab === 'all-players' && showPlayerSetup) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center mb-6">
+            <img 
+              src="/lovable-uploads/6f30e534-6d0f-4334-a430-ee493c2a5143.png" 
+              alt="7 Wonders" 
+              className="mx-auto h-16 md:h-20 object-contain"
+            />
+          </div>
+          <div className="text-center mb-8">
+            <h1 className="text-xl md:text-3xl lg:text-4xl font-bold text-amber-900 mb-6">
+              7 Wonders Player Setup
+            </h1>
+          </div>
+          <PlayerSetup 
+            players={setupPlayers}
+            setPlayers={setSetupPlayers}
+            onStartScoring={handleStartScoring}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
@@ -453,7 +533,7 @@ const Index = () => {
                             }}
                           >
                             <WonderBoard
-                              key={`${player.id}-${player.resetKey}`} // Force re-render when resetKey changes
+                              key={`${player.id}-${player.resetKey}`}
                               board={player.board}
                               playerName={player.name}
                               wonderSide={player.side}
@@ -518,7 +598,6 @@ const Index = () => {
               </DropdownMenu>
             </div>
 
-            {/* Copy Game Summary Buttons */}
             {playingPlayers.length > 0 && (
               <div className="flex justify-center gap-2 sm:gap-3 mt-8 bg-gray-100 p-3 rounded-lg">
                 <Button 
@@ -586,7 +665,6 @@ const Index = () => {
               </AlertDialog>
             </div>
 
-            {/* Solo Wonder Board */}
             {activePlayers.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-amber-700 text-lg">Select a wonder board to start</p>
@@ -596,7 +674,7 @@ const Index = () => {
                 <div className="w-full max-w-md">
                   {displayPlayers.map(player => (
                     <WonderBoard
-                      key={`${player.id}-${player.resetKey}`} // Force re-render when resetKey changes
+                      key={`${player.id}-${player.resetKey}`}
                       board={player.board}
                       playerName={player.name}
                       wonderSide={player.side}
@@ -613,7 +691,6 @@ const Index = () => {
               </div>
             )}
 
-            {/* Bottom Control Buttons for Solo */}
             <div className="flex flex-wrap justify-center gap-3 mt-6">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -640,7 +717,6 @@ const Index = () => {
               </DropdownMenu>
             </div>
 
-            {/* Copy Game Summary Button for Solo */}
             {playingPlayers.length > 0 && (
               <div className="flex justify-center mt-8 bg-gray-100 p-3 rounded-lg">
                 <Button 

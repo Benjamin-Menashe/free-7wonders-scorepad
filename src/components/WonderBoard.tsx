@@ -118,6 +118,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
 
   const totalScore = calculateTotalScore(scores);
   const wonder = wonderInfo[board];
+  const isUnassigned = playerName.trim() === '';
 
   useEffect(() => {
     if (forceExpanded !== undefined) {
@@ -196,14 +197,16 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
             </Button>
             
             {showBoardSelector && onBoardChange ? (
-              <Select value={board} onValueChange={onBoardChange}>
+              <Select value={isUnassigned ? "" : board} onValueChange={onBoardChange}>
                 <SelectTrigger className={`${wonderSide === 'day' ? 'bg-white/20 border-white/30' : 'bg-black/20 border-black/30'} ${textColors} h-7 text-xs font-bold min-w-0 flex-1 max-w-[120px] [&>svg]:hidden`}>
-                  <SelectValue placeholder="Board" />
+                  <SelectValue placeholder="Add board" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={board}>
-                    {wonder.name}
-                  </SelectItem>
+                  {!isUnassigned && (
+                    <SelectItem value={board}>
+                      {wonder.name} (Current)
+                    </SelectItem>
+                  )}
                   {availableBoards.map(boardOption => (
                     <SelectItem key={boardOption} value={boardOption}>
                       {wonderInfo[boardOption].name}
@@ -213,7 +216,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
               </Select>
             ) : (
               <div className="font-bold text-xs min-w-0 text-left mr-1">
-                {wonder.name}
+                {isUnassigned ? "Add board" : wonder.name}
               </div>
             )}
 

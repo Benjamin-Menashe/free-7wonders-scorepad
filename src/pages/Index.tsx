@@ -64,7 +64,7 @@ const Index = () => {
     const initialPlayers: PlayerData[] = Array.from({ length: 7 }, (_, index) => ({
       id: `player-${index}`,
       name: '',
-      board: wonderBoards[index], // Each gets a unique default board
+      board: 'alexandria' as WonderBoardType, // Default value, but will show as "Add board"
       side: 'day' as WonderSide,
       scores: createEmptyScores(),
       isActive: true,
@@ -173,7 +173,7 @@ const Index = () => {
       const initialPlayers: PlayerData[] = Array.from({ length: 7 }, (_, index) => ({
         id: `player-${index}`,
         name: '',
-        board: wonderBoards[index], // Each gets a unique default board
+        board: 'alexandria' as WonderBoardType, // Default value, but will show as "Add board"
         side: 'day' as WonderSide,
         scores: createEmptyScores(),
         isActive: true,
@@ -351,7 +351,7 @@ const Index = () => {
     }
     
     const usedBoards = allPlayersData
-      .filter(p => p.isActive && p.id !== currentPlayerId)
+      .filter(p => p.isActive && p.id !== currentPlayerId && p.name.trim() !== '') // Only consider assigned boards (players with names)
       .map(p => p.board);
     
     return wonderBoards.filter(board => !usedBoards.includes(board));

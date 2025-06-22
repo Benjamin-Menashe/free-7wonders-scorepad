@@ -23,6 +23,7 @@ interface WonderBoardProps {
   forceExpanded?: boolean;
   availableBoards?: WonderBoardType[];
   showBoardSelector?: boolean;
+  isUnassigned?: boolean; // New prop to explicitly indicate unassigned state
 }
 
 interface MilitaryTokens {
@@ -84,6 +85,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
   forceExpanded = false,
   availableBoards = [],
   showBoardSelector = false,
+  isUnassigned = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Record<ScoreCategory, boolean>>({
@@ -118,7 +120,6 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
 
   const totalScore = calculateTotalScore(scores);
   const wonder = wonderInfo[board];
-  const isUnassigned = playerName.trim() === '' && board === 'alexandria'; // Only consider unassigned if it's the default alexandria and no name
 
   useEffect(() => {
     if (forceExpanded !== undefined) {
@@ -136,6 +137,21 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
       }
     }
   }, [forceExpanded]);
+
+  // Reset expanded categories when board changes
+  useEffect(() => {
+    if (isUnassigned) {
+      setExpandedCategories({
+        wonder: false,
+        wealth: false,
+        military: false,
+        culture: false,
+        commerce: false,
+        science: false,
+        guilds: false
+      });
+    }
+  }, [board, isUnassigned]);
 
   const handleScoreChange = (category: ScoreCategory, value: string) => {
     const numValue = value === '' ? 0 : parseInt(value) || 0;
@@ -202,11 +218,6 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                   <SelectValue placeholder="Add board" />
                 </SelectTrigger>
                 <SelectContent>
-                  {!isUnassigned && (
-                    <SelectItem value={board}>
-                      {wonder.name} (Current)
-                    </SelectItem>
-                  )}
                   {availableBoards.map(boardOption => (
                     <SelectItem key={boardOption} value={boardOption}>
                       {wonderInfo[boardOption].name}

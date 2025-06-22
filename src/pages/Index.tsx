@@ -30,7 +30,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautif
 interface PlayerData {
   id: string;
   name: string;
-  board: WonderBoardType;
+  board: WonderBoardType | null; // Allow null for unassigned
   side: WonderSide;
   scores: Record<ScoreCategory, number>;
   isActive: boolean;
@@ -64,7 +64,7 @@ const Index = () => {
     const initialPlayers: PlayerData[] = Array.from({ length: 7 }, (_, index) => ({
       id: `player-${index}`,
       name: '',
-      board: 'alexandria' as WonderBoardType, // Default value, but will show as "Add board"
+      board: null, // Start as unassigned
       side: 'day' as WonderSide,
       scores: createEmptyScores(),
       isActive: true,
@@ -112,7 +112,7 @@ const Index = () => {
 
   const updatePlayerBoard = (playerId: string, board: WonderBoardType) => {
     setCurrentPlayers(getCurrentPlayers().map(p => 
-      p.id === playerId ? { ...p, board } : p
+      p.id === playerId ? { ...p, board, resetKey: Date.now() } : p // Add resetKey to force re-render
     ));
   };
 
@@ -198,7 +198,7 @@ const Index = () => {
   const copyGameSummary = (includeDetails: boolean = false) => {
     const players = getCurrentPlayers();
     const activePlayers = players.filter(p => p.isActive);
-    const playingPlayers = activePlayers.filter(p => p.name.trim() !== '');
+    const playingPlayers = activePlayers.filter(p => p.name.trim() !== '' && p.board !== null);
     
     if (playingPlayers.length === 0) {
       toast({
@@ -351,15 +351,15 @@ const Index = () => {
     }
     
     const usedBoards = allPlayersData
-      .filter(p => p.isActive && p.id !== currentPlayerId && p.name.trim() !== '') // Only consider assigned boards (players with names)
-      .map(p => p.board);
+      .filter(p => p.isActive && p.id !== currentPlayerId && p.board !== null) // Only consider assigned boards
+      .map(p => p.board) as WonderBoardType[];
     
     return wonderBoards.filter(board => !usedBoards.includes(board));
   };
 
   const players = getCurrentPlayers();
   const activePlayers = players.filter(p => p.isActive);
-  const playingPlayers = activePlayers.filter(p => p.name.trim() !== '');
+  const playingPlayers = activePlayers.filter(p => p.name.trim() !== '' && p.board !== null);
   const removedBoards = players.filter(p => !p.isActive);
   
   const displayPlayers = activeTab === 'solo' 
@@ -368,7 +368,7 @@ const Index = () => {
 
   const availableBoards = activeTab === 'solo' 
     ? (activePlayers.length === 0 ? wonderBoards : [])
-    : removedBoards.map(board => board.board);
+    : removedBoards.map(board => board.board).filter(board => board !== null) as WonderBoardType[];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
@@ -455,8 +455,8 @@ const Index = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {displayPlayers.map((player) => (
                   <WonderBoard
-                    key={`${player.id}-${player.resetKey}`}
-                    board={player.board}
+                    key={`${player.id}-${player.resetKey || 0}`}
+                    board={player.board || 'alexandria'} // Fallback for display
                     playerName={player.name}
                     wonderSide={player.side}
                     scores={player.scores}
@@ -469,6 +469,7 @@ const Index = () => {
                     forceExpanded={allExpanded}
                     availableBoards={getAvailableBoards(player.id)}
                     showBoardSelector={true}
+                    isUnassigned={player.board === null}
                   />
                 ))}
               </div>
@@ -494,8 +495,8 @@ const Index = () => {
                               }}
                             >
                               <WonderBoard
-                                key={`${player.id}-${player.resetKey}`}
-                                board={player.board}
+                                key={`${player.id}-${player.resetKey || 0}`}
+                                board={player.board || 'alexandria'} // Fallback for display
                                 playerName={player.name}
                                 wonderSide={player.side}
                                 scores={player.scores}
@@ -508,6 +509,7 @@ const Index = () => {
                                 forceExpanded={allExpanded}
                                 availableBoards={getAvailableBoards(player.id)}
                                 showBoardSelector={true}
+                                isUnassigned={player.board === null}
                               />
                             </div>
                           )}
@@ -536,7 +538,6 @@ const Index = () => {
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="outline"
-                    size="sm"
                     className={`flex items-center gap-2 ${removedBoards.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                     disabled={removedBoards.length === 0}
                   >
@@ -641,8 +642,8 @@ const Index = () => {
                 <div className="w-full max-w-md">
                   {displayPlayers.map(player => (
                     <WonderBoard
-                      key={`${player.id}-${player.resetKey}`}
-                      board={player.board}
+                      key={`${player.id}-${player.resetKey || 0}`}
+                      board={player.board || 'alexandria'} // Fallback for display
                       playerName={player.name}
                       wonderSide={player.side}
                       scores={player.scores}
@@ -652,6 +653,7 @@ const Index = () => {
                       onRemove={() => removePlayer(player.id)}
                       isEmpty={player.name.trim() === ''}
                       forceExpanded={allExpanded}
+                      isUnassigned={player.board === null}
                     />
                   ))}
                 </div>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -65,7 +64,7 @@ const Index = () => {
     const initialPlayers: PlayerData[] = Array.from({ length: 7 }, (_, index) => ({
       id: `player-${index}`,
       name: '',
-      board: wonderBoards[0], // Default to first board, will be selectable
+      board: wonderBoards[index], // Each gets a unique default board
       side: 'day' as WonderSide,
       scores: createEmptyScores(),
       isActive: true,
@@ -174,7 +173,7 @@ const Index = () => {
       const initialPlayers: PlayerData[] = Array.from({ length: 7 }, (_, index) => ({
         id: `player-${index}`,
         name: '',
-        board: wonderBoards[0],
+        board: wonderBoards[index], // Each gets a unique default board
         side: 'day' as WonderSide,
         scores: createEmptyScores(),
         isActive: true,

@@ -197,8 +197,8 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
             
             {showBoardSelector && onBoardChange ? (
               <Select value={board} onValueChange={onBoardChange}>
-                <SelectTrigger className={`${wonderSide === 'day' ? 'bg-white/20 border-white/30' : 'bg-black/20 border-black/30'} ${textColors} h-7 text-xs font-bold min-w-0 flex-1 max-w-[120px]`}>
-                  <SelectValue />
+                <SelectTrigger className={`${wonderSide === 'day' ? 'bg-white/20 border-white/30' : 'bg-black/20 border-black/30'} ${textColors} h-7 text-xs font-bold min-w-0 flex-1 max-w-[120px] [&>svg]:hidden`}>
+                  <SelectValue placeholder="Board" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={board}>

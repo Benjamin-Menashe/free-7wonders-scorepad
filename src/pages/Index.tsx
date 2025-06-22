@@ -160,9 +160,17 @@ const Index = () => {
       };
       setSoloPlayerData([newPlayer]);
     } else {
-      setCurrentPlayers(currentPlayers.map(p => 
-        p.board === boardType ? { ...p, isActive: true } : p
-      ));
+      // Find the first inactive player or one that can be reassigned
+      const targetPlayer = currentPlayers.find(p => !p.isActive) || 
+                          currentPlayers.find(p => p.board === null || (p.board === 'alexandria' && p.name.trim() === ''));
+      
+      if (targetPlayer) {
+        setCurrentPlayers(currentPlayers.map(p => 
+          p.id === targetPlayer.id 
+            ? { ...p, board: boardType, isActive: true, resetKey: Date.now() }
+            : p
+        ));
+      }
     }
   };
 
@@ -198,7 +206,8 @@ const Index = () => {
   const copyGameSummary = (includeDetails: boolean = false) => {
     const players = getCurrentPlayers();
     const activePlayers = players.filter(p => p.isActive);
-    const playingPlayers = activePlayers.filter(p => p.name.trim() !== '' && p.board !== null);
+    const playingPlayers = activePlayers.filter(p => p.name.trim() !== '' && p.board !== null && 
+                                                  !(p.board === 'alexandria' && p.name.trim() === ''));
     
     if (playingPlayers.length === 0) {
       toast({
@@ -268,24 +277,30 @@ const Index = () => {
 
   const removeEmptyBoards = () => {
     if (activeTab === 'all-players') {
-      const emptyBoardsCount = allPlayersData.filter(p => p.isActive && p.name.trim() === '').length;
+      // Count boards that are unassigned (board is null OR it's alexandria with empty name)
+      const emptyBoardsCount = allPlayersData.filter(p => 
+        p.isActive && (p.board === null || (p.board === 'alexandria' && p.name.trim() === ''))
+      ).length;
       
       if (emptyBoardsCount === 0) {
         toast({
           title: "No empty boards",
-          description: "All active boards have player names.",
+          description: "All active boards have been assigned.",
           duration: 1000,
         });
         return;
       }
 
+      // Remove boards that are unassigned
       setAllPlayersData(allPlayersData.map(p => 
-        p.isActive && p.name.trim() === '' ? { ...p, isActive: false } : p
+        p.isActive && (p.board === null || (p.board === 'alexandria' && p.name.trim() === '')) 
+          ? { ...p, isActive: false } 
+          : p
       ));
 
       toast({
         title: "Empty boards removed",
-        description: `Removed ${emptyBoardsCount} empty board${emptyBoardsCount > 1 ? 's' : ''}.`,
+        description: `Removed ${emptyBoardsCount} unassigned board${emptyBoardsCount > 1 ? 's' : ''}.`,
         duration: 1000,
       });
     }
@@ -351,7 +366,8 @@ const Index = () => {
     }
     
     const usedBoards = allPlayersData
-      .filter(p => p.isActive && p.id !== currentPlayerId && p.board !== null) // Only consider assigned boards
+      .filter(p => p.isActive && p.id !== currentPlayerId && p.board !== null && 
+                  !(p.board === 'alexandria' && p.name.trim() === '')) // Don't count unassigned alexandria
       .map(p => p.board) as WonderBoardType[];
     
     return wonderBoards.filter(board => !usedBoards.includes(board));
@@ -359,7 +375,10 @@ const Index = () => {
 
   const players = getCurrentPlayers();
   const activePlayers = players.filter(p => p.isActive);
-  const playingPlayers = activePlayers.filter(p => p.name.trim() !== '' && p.board !== null);
+  const playingPlayers = activePlayers.filter(p => p.name.trim() !== '' && p.board !== null && 
+                                                  !(p.board === 'alexandria' && p.name.trim() === ''));
+  
+  // Update removedBoards to only include truly inactive boards
   const removedBoards = players.filter(p => !p.isActive);
   
   const displayPlayers = activeTab === 'solo' 

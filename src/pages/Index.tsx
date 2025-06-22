@@ -64,7 +64,7 @@ const Index = () => {
     const initialPlayers: PlayerData[] = Array.from({ length: 7 }, (_, index) => ({
       id: `player-${index}`,
       name: '',
-      board: null, // Start as unassigned
+      board: 'alexandria', // Use alexandria as the "unassigned" state
       side: 'day' as WonderSide,
       scores: createEmptyScores(),
       isActive: true,
@@ -112,7 +112,7 @@ const Index = () => {
 
   const updatePlayerBoard = (playerId: string, board: WonderBoardType) => {
     setCurrentPlayers(getCurrentPlayers().map(p => 
-      p.id === playerId ? { ...p, board, resetKey: Date.now() } : p // Add resetKey to force re-render
+      p.id === playerId ? { ...p, board, resetKey: Date.now() } : p
     ));
   };
 
@@ -181,7 +181,7 @@ const Index = () => {
       const initialPlayers: PlayerData[] = Array.from({ length: 7 }, (_, index) => ({
         id: `player-${index}`,
         name: '',
-        board: 'alexandria' as WonderBoardType, // Default value, but will show as "Add board"
+        board: 'alexandria' as WonderBoardType,
         side: 'day' as WonderSide,
         scores: createEmptyScores(),
         isActive: true,
@@ -206,8 +206,11 @@ const Index = () => {
   const copyGameSummary = (includeDetails: boolean = false) => {
     const players = getCurrentPlayers();
     const activePlayers = players.filter(p => p.isActive);
-    const playingPlayers = activePlayers.filter(p => p.name.trim() !== '' && p.board !== null && 
-                                                  !(p.board === 'alexandria' && p.name.trim() === ''));
+    // Filter out unassigned boards (alexandria with empty name)
+    const playingPlayers = activePlayers.filter(p => 
+      p.name.trim() !== '' && p.board !== null && 
+      !(p.board === 'alexandria' && p.name.trim() === '')
+    );
     
     if (playingPlayers.length === 0) {
       toast({
@@ -280,9 +283,9 @@ const Index = () => {
 
   const removeEmptyBoards = () => {
     if (activeTab === 'all-players') {
-      // Count boards that are unassigned (board is null OR it's alexandria with empty name)
+      // Count boards that are unassigned (alexandria with empty name)
       const emptyBoardsCount = allPlayersData.filter(p => 
-        p.isActive && (p.board === null || (p.board === 'alexandria' && p.name.trim() === ''))
+        p.isActive && p.board === 'alexandria' && p.name.trim() === ''
       ).length;
       
       if (emptyBoardsCount === 0) {
@@ -294,9 +297,9 @@ const Index = () => {
         return;
       }
 
-      // Remove boards that are unassigned
+      // Remove boards that are unassigned (alexandria with empty name)
       setAllPlayersData(allPlayersData.map(p => 
-        p.isActive && (p.board === null || (p.board === 'alexandria' && p.name.trim() === '')) 
+        p.isActive && p.board === 'alexandria' && p.name.trim() === '' 
           ? { ...p, isActive: false } 
           : p
       ));
@@ -378,8 +381,10 @@ const Index = () => {
 
   const players = getCurrentPlayers();
   const activePlayers = players.filter(p => p.isActive);
-  const playingPlayers = activePlayers.filter(p => p.name.trim() !== '' && p.board !== null && 
-                                                  !(p.board === 'alexandria' && p.name.trim() === ''));
+  const playingPlayers = activePlayers.filter(p => 
+    p.name.trim() !== '' && p.board !== null && 
+    !(p.board === 'alexandria' && p.name.trim() === '')
+  );
   
   // Update removedBoards to only include truly inactive boards
   const removedBoards = players.filter(p => !p.isActive);

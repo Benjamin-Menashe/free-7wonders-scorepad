@@ -187,6 +187,9 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
     }
   };
 
+  // Determine if this board is in unassigned state (alexandria with empty name)
+  const isActuallyUnassigned = isUnassigned || (board === 'alexandria' && playerName.trim() === '');
+
   const effectiveExpanded = isExpanded;
   const headerColors = wonderSide === 'day' 
     ? 'bg-gradient-to-r from-white via-blue-50 to-blue-100' 
@@ -213,7 +216,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
             </Button>
             
             {showBoardSelector && onBoardChange ? (
-              <Select value={isUnassigned ? "" : board} onValueChange={(value) => onBoardChange(value as WonderBoardType)}>
+              <Select value={isActuallyUnassigned ? "" : board} onValueChange={(value) => onBoardChange(value as WonderBoardType)}>
                 <SelectTrigger className={`${wonderSide === 'day' ? 'bg-white/20 border-white/30' : 'bg-black/20 border-black/30'} ${textColors} h-7 text-xs font-bold min-w-0 flex-1 max-w-[120px] [&>svg]:hidden`}>
                   <SelectValue placeholder="Add board" />
                 </SelectTrigger>
@@ -227,7 +230,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
               </Select>
             ) : (
               <div className="font-bold text-xs min-w-0 text-left mr-1">
-                {isUnassigned ? "Add board" : wonder.name}
+                {isActuallyUnassigned ? "Add board" : wonder.name}
               </div>
             )}
 

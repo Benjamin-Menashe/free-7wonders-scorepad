@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,9 +24,7 @@ import { ChevronUp, ChevronDown, Plus, Copy, Trash2, RotateCcw, ArrowUpDown } fr
 import { useToast } from '@/hooks/use-toast';
 import { usePageProtection } from '@/hooks/usePageProtection';
 import WonderBoard from '@/components/WonderBoard';
-import PlayerSetup from '@/components/PlayerSetup';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
-import { Player } from '@/types/player';
 import { calculateTotalScore, getWinner } from '@/utils/scoreCalculator';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
@@ -59,8 +58,6 @@ const Index = () => {
   const [gameTitle, setGameTitle] = useState('7 Wonders');
   const [allExpanded, setAllExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('all-players');
-  const [showPlayerSetup, setShowPlayerSetup] = useState(true);
-  const [setupPlayers, setSetupPlayers] = useState<Player[]>([]);
   const { toast } = useToast();
 
   // Check if there's unsaved game data for page protection
@@ -69,12 +66,12 @@ const Index = () => {
   
   usePageProtection(hasUnsavedData);
 
-  // Initialize with all 7 wonder boards for "All Players" mode
+  // Initialize with 7 empty boards for "All Players" mode
   useEffect(() => {
-    const initialPlayers: PlayerData[] = wonderBoards.map((board, index) => ({
+    const initialPlayers: PlayerData[] = Array.from({ length: 7 }, (_, index) => ({
       id: `player-${index}`,
       name: '',
-      board,
+      board: 'alexandria', // Default to first board, but will be selectable
       side: 'day' as WonderSide,
       scores: createEmptyScores(),
       isActive: true,
@@ -111,41 +108,15 @@ const Index = () => {
     }
   };
 
-  const handleStartScoring = () => {
-    // Convert setup players to player data for all players mode
-    const playerData: PlayerData[] = setupPlayers.map((player, index) => ({
-      id: player.id,
-      name: player.name,
-      board: player.wonderBoard,
-      side: player.wonderSide,
-      scores: createEmptyScores(),
-      isActive: true,
-      resetKey: 0,
-    }));
-
-    // Fill remaining slots with inactive boards
-    const usedBoards = setupPlayers.map(p => p.wonderBoard);
-    const remainingBoards = wonderBoards.filter(board => !usedBoards.includes(board));
-    
-    remainingBoards.forEach((board, index) => {
-      playerData.push({
-        id: `unused-${index}`,
-        name: '',
-        board,
-        side: 'day' as WonderSide,
-        scores: createEmptyScores(),
-        isActive: false,
-        resetKey: 0,
-      });
-    });
-
-    setAllPlayersData(playerData);
-    setShowPlayerSetup(false);
-  };
-
   const updatePlayerName = (playerId: string, name: string) => {
     setCurrentPlayers(getCurrentPlayers().map(p => 
       p.id === playerId ? { ...p, name } : p
+    ));
+  };
+
+  const updatePlayerBoard = (playerId: string, board: WonderBoardType) => {
+    setCurrentPlayers(getCurrentPlayers().map(p => 
+      p.id === playerId ? { ...p, board } : p
     ));
   };
 
@@ -209,12 +180,10 @@ const Index = () => {
     const currentResetKey = Date.now();
     
     if (activeTab === 'all-players') {
-      setShowPlayerSetup(true);
-      setSetupPlayers([]);
-      const initialPlayers: PlayerData[] = wonderBoards.map((board, index) => ({
+      const initialPlayers: PlayerData[] = Array.from({ length: 7 }, (_, index) => ({
         id: `player-${index}`,
         name: '',
-        board,
+        board: 'alexandria',
         side: 'day' as WonderSide,
         scores: createEmptyScores(),
         isActive: true,
@@ -372,7 +341,7 @@ const Index = () => {
   };
 
   const handleDragEnd = (result: DropResult) => {
-    if (!result.destination || activeTab !== 'all-players') {
+    if (!result.destination || activeTab !== 'all-players' || allExpanded) {
       return;
     }
 
@@ -381,6 +350,18 @@ const Index = () => {
     items.splice(result.destination.index, 0, reorderedItem);
 
     setAllPlayersData(items);
+  };
+
+  // Get available boards for dropdown (excluding already used boards)
+  const getAvailableBoards = (currentBoard?: WonderBoardType) => {
+    if (activeTab === 'solo') {
+      return wonderBoards;
+    } else {
+      const usedBoards = allPlayersData
+        .filter(p => p.isActive && p.board !== currentBoard)
+        .map(p => p.board);
+      return wonderBoards.filter(board => !usedBoards.includes(board));
+    }
   };
 
   const players = getCurrentPlayers();
@@ -394,42 +375,7 @@ const Index = () => {
     : activePlayers;
 
   // Get available boards for dropdown
-  const getAvailableBoards = () => {
-    if (activeTab === 'solo') {
-      return activePlayers.length === 0 ? wonderBoards : [];
-    } else {
-      return removedBoards.map(board => board.board);
-    }
-  };
-
-  const availableBoards = getAvailableBoards();
-
-  // Show player setup for all players mode
-  if (activeTab === 'all-players' && showPlayerSetup) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center mb-6">
-            <img 
-              src="/lovable-uploads/6f30e534-6d0f-4334-a430-ee493c2a5143.png" 
-              alt="7 Wonders" 
-              className="mx-auto h-16 md:h-20 object-contain"
-            />
-          </div>
-          <div className="text-center mb-8">
-            <h1 className="text-xl md:text-3xl lg:text-4xl font-bold text-amber-900 mb-6">
-              7 Wonders Player Setup
-            </h1>
-          </div>
-          <PlayerSetup 
-            players={setupPlayers}
-            setPlayers={setSetupPlayers}
-            onStartScoring={handleStartScoring}
-          />
-        </div>
-      </div>
-    );
-  }
+  const availableBoards = activeTab === 'solo' ? (activePlayers.length === 0 ? wonderBoards : []) : removedBoards.map(board => board.board);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
@@ -521,7 +467,12 @@ const Index = () => {
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                   >
                     {displayPlayers.map((player, index) => (
-                      <Draggable key={player.id} draggableId={player.id} index={index}>
+                      <Draggable 
+                        key={player.id} 
+                        draggableId={player.id} 
+                        index={index}
+                        isDragDisabled={allExpanded}
+                      >
                         {(provided, snapshot) => (
                           <div
                             ref={provided.innerRef}
@@ -539,11 +490,14 @@ const Index = () => {
                               wonderSide={player.side}
                               scores={player.scores}
                               onNameChange={(name) => updatePlayerName(player.id, name)}
+                              onBoardChange={(board) => updatePlayerBoard(player.id, board)}
                               onSideChange={(side) => updatePlayerSide(player.id, side)}
                               onScoreChange={(category, value) => updatePlayerScore(player.id, category, value)}
                               onRemove={() => removePlayer(player.id)}
                               isEmpty={player.name.trim() === ''}
                               forceExpanded={allExpanded}
+                              availableBoards={getAvailableBoards(player.board)}
+                              showBoardSelector={true}
                             />
                           </div>
                         )}
@@ -680,11 +634,14 @@ const Index = () => {
                       wonderSide={player.side}
                       scores={player.scores}
                       onNameChange={(name) => updatePlayerName(player.id, name)}
+                      onBoardChange={(board) => updatePlayerBoard(player.id, board)}
                       onSideChange={(side) => updatePlayerSide(player.id, side)}
                       onScoreChange={(category, value) => updatePlayerScore(player.id, category, value)}
                       onRemove={() => removePlayer(player.id)}
                       isEmpty={player.name.trim() === ''}
                       forceExpanded={allExpanded}
+                      availableBoards={getAvailableBoards()}
+                      showBoardSelector={false}
                     />
                   ))}
                 </div>

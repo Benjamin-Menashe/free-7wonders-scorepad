@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { WonderBoard, WonderSide } from '@/types/game';
@@ -40,6 +39,10 @@ const boardStagePoints: Record<WonderBoard, Record<WonderSide, number[]>> = {
   rhodes: {
     day: [3, 0, 7],
     night: [3, 4]
+  },
+  unassigned: {
+    day: [],
+    night: []
   }
 };
 

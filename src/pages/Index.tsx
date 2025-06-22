@@ -129,8 +129,9 @@ const Index = () => {
     if (activeTab === 'solo') {
       setSoloPlayerData([]);
     } else {
+      // When removing a player, reset their board to unassigned so it becomes available again
       setCurrentPlayers(getCurrentPlayers().map(p => 
-        p.id === playerId ? { ...p, isActive: false } : p
+        p.id === playerId ? { ...p, isActive: false, board: 'unassigned' } : p
       ));
     }
   };
@@ -370,6 +371,7 @@ const Index = () => {
       return wonderBoards;
     }
     
+    // Only consider boards from active players, excluding the current player and unassigned boards
     const usedBoards = allPlayersData
       .filter(p => p.isActive && p.id !== currentPlayerId && p.board !== 'unassigned')
       .map(p => p.board) as WonderBoardType[];

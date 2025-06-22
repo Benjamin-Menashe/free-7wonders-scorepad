@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronDown, ChevronUp, X, Sun, Moon, Minus, Plus } from 'lucide-react';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
 import { calculateTotalScore } from '@/utils/scoreCalculator';
@@ -16,9 +17,12 @@ interface WonderBoardProps {
   onNameChange: (name: string) => void;
   onSideChange: (side: WonderSide) => void;
   onScoreChange: (category: ScoreCategory, value: number) => void;
+  onBoardChange?: (board: WonderBoardType) => void;
   onRemove: () => void;
   isEmpty: boolean;
   forceExpanded?: boolean;
+  availableBoards?: WonderBoardType[];
+  showBoardSelector?: boolean;
 }
 
 interface MilitaryTokens {
@@ -74,9 +78,12 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
   onNameChange,
   onSideChange,
   onScoreChange,
+  onBoardChange,
   onRemove,
   isEmpty,
   forceExpanded = false,
+  availableBoards = [],
+  showBoardSelector = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Record<ScoreCategory, boolean>>({
@@ -157,6 +164,12 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
     setIsExpanded(!isExpanded);
   };
 
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.currentTarget.blur();
+    }
+  };
+
   const effectiveExpanded = isExpanded;
   const headerColors = wonderSide === 'day' 
     ? 'bg-gradient-to-r from-white via-blue-50 to-blue-100' 
@@ -182,9 +195,27 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
               )}
             </Button>
             
-            <div className="font-bold text-xs min-w-0 text-left mr-1">
-              {wonder.name}
-            </div>
+            {showBoardSelector && onBoardChange ? (
+              <Select value={board} onValueChange={onBoardChange}>
+                <SelectTrigger className={`${wonderSide === 'day' ? 'bg-white/20 border-white/30' : 'bg-black/20 border-black/30'} ${textColors} h-7 text-xs font-bold min-w-0 flex-1 max-w-[120px]`}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={board}>
+                    {wonder.name}
+                  </SelectItem>
+                  {availableBoards.map(boardOption => (
+                    <SelectItem key={boardOption} value={boardOption}>
+                      {wonderInfo[boardOption].name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="font-bold text-xs min-w-0 text-left mr-1">
+                {wonder.name}
+              </div>
+            )}
 
             <div className="flex-1 min-w-0 flex justify-end">
               {isEditingName ? (
@@ -192,6 +223,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                   <Input
                     value={playerName}
                     onChange={(e) => onNameChange(e.target.value)}
+                    onKeyDown={handleInputKeyDown}
                     placeholder="Player name"
                     className={`bg-white/90 text-black placeholder:text-gray-500 border-0 h-7 text-sm font-bold text-right w-32`}
                     autoFocus
@@ -266,6 +298,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                       type="number"
                       value={scores[category.key] || ''}
                       onChange={(e) => handleScoreChange(category.key, e.target.value)}
+                      onKeyDown={handleInputKeyDown}
                       placeholder="0"
                       className="w-12 text-center h-6 text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       min={category.key === 'military' ? undefined : "0"}

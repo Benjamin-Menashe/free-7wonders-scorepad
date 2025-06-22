@@ -1,6 +1,6 @@
 
 export type WonderBoard = 
-  | 'alexandria' | 'babylon' | 'ephesus' | 'giza' | 'halicarnassus' | 'olympia' | 'rhodes';
+  | 'alexandria' | 'babylon' | 'ephesus' | 'giza' | 'halicarnassus' | 'olympia' | 'rhodes' | 'unassigned';
 
 export type WonderSide = 'day' | 'night';
 

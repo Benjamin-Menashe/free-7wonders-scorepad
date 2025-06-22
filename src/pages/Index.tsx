@@ -64,7 +64,7 @@ const Index = () => {
     const initialPlayers: PlayerData[] = Array.from({ length: 7 }, (_, index) => ({
       id: `player-${index}`,
       name: '',
-      board: 'alexandria', // Use alexandria as the "unassigned" state
+      board: 'unassigned', // Start as unassigned
       side: 'day' as WonderSide,
       scores: createEmptyScores(),
       isActive: true,
@@ -160,9 +160,9 @@ const Index = () => {
       };
       setSoloPlayerData([newPlayer]);
     } else {
-      // Find the first inactive player or one that can be reassigned
+      // Find the first inactive player or one that is unassigned
       const targetPlayer = currentPlayers.find(p => !p.isActive) || 
-                          currentPlayers.find(p => p.board === null || (p.board === 'alexandria' && p.name.trim() === ''));
+                          currentPlayers.find(p => p.board === 'unassigned');
       
       if (targetPlayer) {
         setCurrentPlayers(currentPlayers.map(p => 
@@ -181,7 +181,7 @@ const Index = () => {
       const initialPlayers: PlayerData[] = Array.from({ length: 7 }, (_, index) => ({
         id: `player-${index}`,
         name: '',
-        board: 'alexandria' as WonderBoardType,
+        board: 'unassigned' as WonderBoardType,
         side: 'day' as WonderSide,
         scores: createEmptyScores(),
         isActive: true,
@@ -206,10 +206,9 @@ const Index = () => {
   const copyGameSummary = (includeDetails: boolean = false) => {
     const players = getCurrentPlayers();
     const activePlayers = players.filter(p => p.isActive);
-    // Filter out unassigned boards (alexandria with empty name)
+    // Filter out unassigned boards
     const playingPlayers = activePlayers.filter(p => 
-      p.name.trim() !== '' && p.board !== null && 
-      !(p.board === 'alexandria' && p.name.trim() === '')
+      p.name.trim() !== '' && p.board !== 'unassigned'
     );
     
     if (playingPlayers.length === 0) {
@@ -283,9 +282,9 @@ const Index = () => {
 
   const removeEmptyBoards = () => {
     if (activeTab === 'all-players') {
-      // Count boards that are unassigned (alexandria with empty name)
+      // Count boards that are unassigned
       const emptyBoardsCount = allPlayersData.filter(p => 
-        p.isActive && p.board === 'alexandria' && p.name.trim() === ''
+        p.isActive && p.board === 'unassigned'
       ).length;
       
       if (emptyBoardsCount === 0) {
@@ -297,9 +296,9 @@ const Index = () => {
         return;
       }
 
-      // Remove boards that are unassigned (alexandria with empty name)
+      // Remove boards that are unassigned
       setAllPlayersData(allPlayersData.map(p => 
-        p.isActive && p.board === 'alexandria' && p.name.trim() === '' 
+        p.isActive && p.board === 'unassigned' 
           ? { ...p, isActive: false } 
           : p
       ));
@@ -372,8 +371,7 @@ const Index = () => {
     }
     
     const usedBoards = allPlayersData
-      .filter(p => p.isActive && p.id !== currentPlayerId && p.board !== null && 
-                  !(p.board === 'alexandria' && p.name.trim() === '')) // Don't count unassigned alexandria
+      .filter(p => p.isActive && p.id !== currentPlayerId && p.board !== 'unassigned')
       .map(p => p.board) as WonderBoardType[];
     
     return wonderBoards.filter(board => !usedBoards.includes(board));
@@ -382,8 +380,7 @@ const Index = () => {
   const players = getCurrentPlayers();
   const activePlayers = players.filter(p => p.isActive);
   const playingPlayers = activePlayers.filter(p => 
-    p.name.trim() !== '' && p.board !== null && 
-    !(p.board === 'alexandria' && p.name.trim() === '')
+    p.name.trim() !== '' && p.board !== 'unassigned'
   );
   
   // Update removedBoards to only include truly inactive boards
@@ -395,7 +392,7 @@ const Index = () => {
 
   const availableBoards = activeTab === 'solo' 
     ? (activePlayers.length === 0 ? wonderBoards : [])
-    : removedBoards.map(board => board.board).filter(board => board !== null) as WonderBoardType[];
+    : removedBoards.map(board => board.board).filter(board => board !== 'unassigned') as WonderBoardType[];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
@@ -483,7 +480,7 @@ const Index = () => {
                 {displayPlayers.map((player) => (
                   <WonderBoard
                     key={`${player.id}-${player.resetKey || 0}`}
-                    board={player.board || 'alexandria'} // Fallback for display
+                    board={player.board || 'unassigned'}
                     playerName={player.name}
                     wonderSide={player.side}
                     scores={player.scores}
@@ -496,7 +493,7 @@ const Index = () => {
                     forceExpanded={allExpanded}
                     availableBoards={getAvailableBoards(player.id)}
                     showBoardSelector={true}
-                    isUnassigned={player.board === null}
+                    isUnassigned={player.board === 'unassigned'}
                   />
                 ))}
               </div>
@@ -523,7 +520,7 @@ const Index = () => {
                             >
                               <WonderBoard
                                 key={`${player.id}-${player.resetKey || 0}`}
-                                board={player.board || 'alexandria'} // Fallback for display
+                                board={player.board || 'unassigned'}
                                 playerName={player.name}
                                 wonderSide={player.side}
                                 scores={player.scores}
@@ -536,7 +533,7 @@ const Index = () => {
                                 forceExpanded={allExpanded}
                                 availableBoards={getAvailableBoards(player.id)}
                                 showBoardSelector={true}
-                                isUnassigned={player.board === null}
+                                isUnassigned={player.board === 'unassigned'}
                               />
                             </div>
                           )}
@@ -579,12 +576,12 @@ const Index = () => {
                   <DropdownMenuItem disabled className="text-xs font-semibold">
                     Or select specific:
                   </DropdownMenuItem>
-                  {removedBoards.map(board => (
+                  {wonderBoards.filter(board => !allPlayersData.some(p => p.board === board)).map(board => (
                     <DropdownMenuItem 
-                      key={board.id}
-                      onClick={() => addSpecificBoard(board.board)}
+                      key={board}
+                      onClick={() => addSpecificBoard(board)}
                     >
-                      {board.board.charAt(0).toUpperCase() + board.board.slice(1)}
+                      {board.charAt(0).toUpperCase() + board.slice(1)}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
@@ -670,7 +667,7 @@ const Index = () => {
                   {displayPlayers.map(player => (
                     <WonderBoard
                       key={`${player.id}-${player.resetKey || 0}`}
-                      board={player.board || 'alexandria'} // Fallback for display
+                      board={player.board || 'unassigned'}
                       playerName={player.name}
                       wonderSide={player.side}
                       scores={player.scores}
@@ -680,7 +677,7 @@ const Index = () => {
                       onRemove={() => removePlayer(player.id)}
                       isEmpty={player.name.trim() === ''}
                       forceExpanded={allExpanded}
-                      isUnassigned={player.board === null}
+                      isUnassigned={player.board === 'unassigned'}
                     />
                   ))}
                 </div>

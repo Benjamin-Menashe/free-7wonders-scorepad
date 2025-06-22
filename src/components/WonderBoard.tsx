@@ -69,6 +69,7 @@ const wonderInfo: Record<WonderBoardType, { name: string; description: string }>
   halicarnassus: { name: 'Halikarnassos', description: 'The Mausoleum' },
   olympia: { name: 'Olympia', description: 'The Statue of Zeus' },
   rhodes: { name: 'Rhodos', description: 'The Colossus' },
+  unassigned: { name: 'Add board', description: 'No board selected' },
 };
 
 const WonderBoard: React.FC<WonderBoardProps> = ({
@@ -140,7 +141,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
 
   // Reset expanded categories when board changes
   useEffect(() => {
-    if (isUnassigned) {
+    if (board === 'unassigned') {
       setExpandedCategories({
         wonder: false,
         wealth: false,
@@ -151,7 +152,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
         guilds: false
       });
     }
-  }, [board, isUnassigned]);
+  }, [board]);
 
   const handleScoreChange = (category: ScoreCategory, value: string) => {
     const numValue = value === '' ? 0 : parseInt(value) || 0;
@@ -187,8 +188,8 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
     }
   };
 
-  // Determine if this board is in unassigned state (alexandria with empty name)
-  const isActuallyUnassigned = isUnassigned || (board === 'alexandria' && playerName.trim() === '');
+  // Determine if this board is in unassigned state
+  const isActuallyUnassigned = board === 'unassigned';
 
   const effectiveExpanded = isExpanded;
   const headerColors = wonderSide === 'day' 
@@ -230,7 +231,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
               </Select>
             ) : (
               <div className="font-bold text-xs min-w-0 text-left mr-1">
-                {isActuallyUnassigned ? "Add board" : wonder.name}
+                {wonder.name}
               </div>
             )}
 
@@ -284,7 +285,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
         </div>
       </div>
 
-      {effectiveExpanded && (
+      {effectiveExpanded && !isActuallyUnassigned && (
         <CardContent className="p-4 bg-white">
           <div className="space-y-2">
             {scoreCategories.map(category => (

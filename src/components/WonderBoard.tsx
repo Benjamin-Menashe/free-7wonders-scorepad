@@ -118,7 +118,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
 
   const totalScore = calculateTotalScore(scores);
   const wonder = wonderInfo[board];
-  const isUnassigned = playerName.trim() === '';
+  const isUnassigned = playerName.trim() === '' && board === 'alexandria'; // Only consider unassigned if it's the default alexandria and no name
 
   useEffect(() => {
     if (forceExpanded !== undefined) {
@@ -197,7 +197,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
             </Button>
             
             {showBoardSelector && onBoardChange ? (
-              <Select value={isUnassigned ? "" : board} onValueChange={onBoardChange}>
+              <Select value={isUnassigned ? "" : board} onValueChange={(value) => onBoardChange(value as WonderBoardType)}>
                 <SelectTrigger className={`${wonderSide === 'day' ? 'bg-white/20 border-white/30' : 'bg-black/20 border-black/30'} ${textColors} h-7 text-xs font-bold min-w-0 flex-1 max-w-[120px] [&>svg]:hidden`}>
                   <SelectValue placeholder="Add board" />
                 </SelectTrigger>

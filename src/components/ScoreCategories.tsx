@@ -17,6 +17,8 @@ export const scoreCategories: ScoreCategoryConfig[] = [
   { key: 'commerce', name: 'Commerce', bgColor: 'bg-yellow-200', icon: '🏺' },
   { key: 'science', name: 'Science', bgColor: 'bg-green-200', icon: '📖' },
   { key: 'guilds', name: 'Guilds', bgColor: 'bg-purple-200', icon: '👥' },
+  { key: 'debt', name: 'Debt', bgColor: 'bg-gray-600', icon: '⬛' },
+  { key: 'city', name: 'City', bgColor: 'bg-gray-900', icon: '🏰' },
 ];
 
 interface CategoryExpansionProps {

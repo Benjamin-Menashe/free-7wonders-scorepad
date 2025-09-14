@@ -38,3 +38,15 @@ export const getWinner = (
   
   return winner.score >= 0 ? winner : null;
 };
+
+export const createDefaultScores = (): Record<ScoreCategory, number> => ({
+  wonder: 0,
+  wealth: 0,
+  military: 0,
+  culture: 0,
+  commerce: 0,
+  science: 0,
+  guilds: 0,
+  debt: 0,
+  city: 0
+});

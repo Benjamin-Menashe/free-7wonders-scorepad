@@ -24,7 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { usePageProtection } from '@/hooks/usePageProtection';
 import WonderBoard from '@/components/WonderBoard';
 import { WonderBoard as WonderBoardType, WonderSide, ScoreCategory } from '@/types/game';
-import { calculateTotalScore, getWinner } from '@/utils/scoreCalculator';
+import { calculateTotalScore, getWinner, createDefaultScores } from '@/utils/scoreCalculator';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
 interface PlayerData {
@@ -41,15 +41,7 @@ const wonderBoards: WonderBoardType[] = [
   'alexandria', 'babylon', 'ephesus', 'giza', 'halicarnassus', 'olympia', 'rhodes'
 ];
 
-const createEmptyScores = (): Record<ScoreCategory, number> => ({
-  wonder: 0,
-  wealth: 0,
-  military: 0,
-  culture: 0,
-  commerce: 0,
-  science: 0,
-  guilds: 0
-});
+const createEmptyScores = (): Record<ScoreCategory, number> => createDefaultScores();
 
 const wonderInfo: Record<WonderBoardType, { name: string; description: string }> = {
   alexandria: { name: 'Alexandria', description: 'The Great Library' },
@@ -268,6 +260,8 @@ const Index = () => {
           summary += `\n${player.name} (${boardName}):\n`;
           summary += `🔶 Wonder: ${player.scores.wonder} | 🪙 Wealth: ${player.scores.wealth} | ⚔️ Military: ${player.scores.military}\n`;
           summary += `🏛️ Culture: ${player.scores.culture} | 🏺 Commerce: ${player.scores.commerce} | 📖 Science: ${player.scores.science} | 👥 Guilds: ${player.scores.guilds}\n`;
+          summary += `⬛ Debt: ${player.scores.debt} | 🏰 City: ${player.scores.city}\n`;
+          summary += `⬛ Debt: ${player.scores.debt} | 🏰 City: ${player.scores.city}\n`;
         });
       }
     }

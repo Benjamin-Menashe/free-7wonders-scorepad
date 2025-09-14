@@ -5,7 +5,7 @@ export type WonderBoard =
 export type WonderSide = 'day' | 'night';
 
 export type ScoreCategory = 
-  | 'wonder' | 'wealth' | 'military' | 'culture' | 'commerce' | 'science' | 'guilds';
+  | 'wonder' | 'wealth' | 'military' | 'culture' | 'commerce' | 'science' | 'guilds' | 'debt' | 'city';
 
 export interface Player {
   id: string;

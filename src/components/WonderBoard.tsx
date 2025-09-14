@@ -69,6 +69,8 @@ const wonderInfo: Record<WonderBoardType, { name: string; description: string }>
   halicarnassus: { name: 'Halikarnassos', description: 'The Mausoleum' },
   olympia: { name: 'Olympia', description: 'The Statue of Zeus' },
   rhodes: { name: 'Rhodos', description: 'The Colossus' },
+  byzantium: { name: 'Byzantium', description: 'The Great Church' },
+  petra: { name: 'Petra', description: 'The Treasury' },
   unassigned: { name: 'Add board', description: 'No board selected' },
 };
 

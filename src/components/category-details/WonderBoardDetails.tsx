@@ -40,6 +40,14 @@ const boardStagePoints: Record<WonderBoard, Record<WonderSide, number[]>> = {
     day: [3, 0, 7],
     night: [3, 4]
   },
+  byzantium: {
+    day: [3, 4, 7],
+    night: [4, 6]
+  },
+  petra: {
+    day: [3, 7, 7],
+    night: [3, 14]
+  },
   unassigned: {
     day: [],
     night: []

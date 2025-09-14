@@ -168,7 +168,8 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
   const adjustScore = (category: ScoreCategory, delta: number) => {
     const currentScore = scores[category] || 0;
     const newScore = currentScore + delta;
-    if (category !== 'military' && newScore < 0) return;
+    // Allow negative numbers for military, debt, and city categories
+    if (category !== 'military' && category !== 'debt' && category !== 'city' && newScore < 0) return;
     onScoreChange(category, newScore);
   };
 
@@ -300,7 +301,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                   className={`flex items-center justify-between p-3 ${category.bgColor} cursor-pointer hover:opacity-90`}
                   onClick={() => toggleCategoryExpansion(category.key)}
                 >
-                  <div className="flex items-center gap-2 font-medium text-black">
+                  <div className={`flex items-center gap-2 font-medium ${category.key === 'city' ? 'text-white' : 'text-black'}`}>
                     <span>{category.icon}</span>
                     {category.name}
                   </div>
@@ -313,7 +314,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                         e.stopPropagation();
                         adjustScore(category.key, -1);
                       }}
-                      className="p-1 h-6 w-6 hover:bg-black/10"
+                      className={`p-1 h-6 w-6 hover:bg-black/10 ${category.key === 'city' ? 'text-white hover:bg-white/20' : ''}`}
                     >
                       <Minus className="w-3 h-3" />
                     </Button>
@@ -324,7 +325,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                       onChange={(e) => handleScoreChange(category.key, e.target.value)}
                       onKeyDown={handleInputKeyDown}
                       placeholder="0"
-                      className="w-12 text-center h-6 text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className={`w-12 text-center h-6 text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${category.key === 'city' ? 'bg-white text-black' : ''}`}
                       min={category.key === 'military' || category.key === 'debt' || category.key === 'city' ? undefined : "0"}
                       onClick={(e) => e.stopPropagation()}
                     />
@@ -336,7 +337,7 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                         e.stopPropagation();
                         adjustScore(category.key, 1);
                       }}
-                      className="p-1 h-6 w-6 hover:bg-black/10"
+                      className={`p-1 h-6 w-6 hover:bg-black/10 ${category.key === 'city' ? 'text-white hover:bg-white/20' : ''}`}
                     >
                       <Plus className="w-3 h-3" />
                     </Button>

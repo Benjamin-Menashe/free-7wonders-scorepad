@@ -170,7 +170,8 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
   const adjustScore = (category: ScoreCategory, delta: number) => {
     const currentScore = scores[category] || 0;
     const newScore = currentScore + delta;
-    // Allow negative numbers for military, debt, and city categories
+    // Allow negative numbers for military, debt, and city categories, but debt cannot be positive
+    if (category === 'debt' && newScore > 0) return;
     if (category !== 'military' && category !== 'debt' && category !== 'city' && newScore < 0) return;
     onScoreChange(category, newScore);
   };
@@ -328,7 +329,8 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                       onKeyDown={handleInputKeyDown}
                       placeholder="0"
                       className={`w-12 text-center h-6 text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${category.key === 'city' ? 'bg-white text-black' : ''}`}
-                      min={category.key === 'military' || category.key === 'debt' || category.key === 'city' ? undefined : "0"}
+                      min={category.key === 'military' || category.key === 'city' ? undefined : category.key === 'debt' ? undefined : "0"}
+                      max={category.key === 'debt' ? "0" : undefined}
                       onClick={(e) => e.stopPropagation()}
                     />
                     
@@ -344,19 +346,17 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                       <Plus className="w-3 h-3" />
                     </Button>
                     
-                    {category.key !== 'debt' && category.key !== 'city' && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="p-1 h-auto ml-1"
-                      >
-                        {expandedCategories[category.key] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </Button>
-                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`p-1 h-auto ml-1 ${category.key === 'city' ? 'text-white hover:bg-white/20' : ''}`}
+                    >
+                      {expandedCategories[category.key] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </Button>
                   </div>
                 </div>
 
-                {expandedCategories[category.key] && category.key !== 'debt' && category.key !== 'city' && (
+                {expandedCategories[category.key] && (
                   <CategoryDetails 
                     category={category.key} 
                     onScoreChange={(score) => onScoreChange(category.key, score)}

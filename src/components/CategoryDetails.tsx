@@ -145,7 +145,17 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
           onScoreChange={onScoreChange}
         />
       );
-    default:
+      case 'debt':
+        return (
+          <div className="p-3 bg-white border-t">
+            <p className="text-sm text-gray-600">
+              Total debt tokens
+            </p>
+          </div>
+        );
+      case 'city':
+        return null; // No expansion content for city yet
+      default:
       return (
         <div className="p-3 bg-white border-t flex justify-center">
           <p className="text-sm text-gray-600">

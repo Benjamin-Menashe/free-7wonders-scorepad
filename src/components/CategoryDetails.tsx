@@ -9,6 +9,7 @@ import { CultureDetails } from './category-details/CultureDetails';
 import { CommerceDetails } from './category-details/CommerceDetails';
 import { WonderBoardDetails } from './category-details/WonderBoardDetails';
 import { GuildsDetails } from './category-details/GuildsDetails';
+import { CityDetails } from './category-details/CityDetails';
 
 interface CategoryDetailsProps {
   category: ScoreCategory;
@@ -32,6 +33,8 @@ interface CategoryDetailsProps {
   onCommerceCardsChange?: (cards: CommerceCard[]) => void;
   guildsCards?: GuildsCard[];
   onGuildsCardsChange?: (cards: GuildsCard[]) => void;
+  cityCards?: CityCard[];
+  onCityCardsChange?: (cards: CityCard[]) => void;
 }
 
 interface MilitaryTokens {
@@ -74,6 +77,15 @@ interface GuildsCard {
   maxScore?: number;
 }
 
+interface CityCard {
+  id: string;
+  name: string;
+  score: number;
+  description?: string;
+  isVariable: boolean;
+  step?: number;
+}
+
 export const CategoryDetails: React.FC<CategoryDetailsProps> = ({ 
   category, 
   onScoreChange,
@@ -94,7 +106,9 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
   commerceCards = [],
   onCommerceCardsChange,
   guildsCards = [],
-  onGuildsCardsChange
+  onGuildsCardsChange,
+  cityCards = [],
+  onCityCardsChange
 }) => {
   switch (category) {
     case 'wealth':
@@ -164,7 +178,13 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
           />
         );
       case 'city':
-        return null; // No expansion content for city yet
+        return (
+          <CityDetails
+            cityCards={cityCards}
+            onCityCardsChange={onCityCardsChange!}
+            onScoreChange={onScoreChange}
+          />
+        );
       default:
       return (
         <div className="p-3 bg-white border-t flex justify-center">

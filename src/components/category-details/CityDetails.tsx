@@ -1,9 +1,13 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Minus, Plus, X } from 'lucide-react';
-
+import { Input } from '@/components/ui/input';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Minus, Plus, X, ChevronDown } from 'lucide-react';
 
 interface CityCard {
   id: string;
@@ -97,94 +101,109 @@ export const CityDetails: React.FC<CityDetailsProps> = ({
   );
 
   return (
-    <div className="p-3 bg-white border-t space-y-3">
-      {availableCards.length > 0 && (
-        <div className="space-y-2">
-          <Select onValueChange={(value) => {
-            const cardTemplate = cityCardsList.find(card => card.name === value);
-            if (cardTemplate) {
-              addCityCard(cardTemplate);
-            }
-          }}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Add city card..." />
-            </SelectTrigger>
-            <SelectContent>
-              {availableCards.map((card) => (
-                <SelectItem key={card.name} value={card.name}>
-                  {card.name} ({card.isVariable ? 'Variable' : `${card.points} points`})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-
-      {cityCards.length > 0 && (
-        <div className="space-y-2">
-          {cityCards.map((card) => (
-            <Card key={card.id} className="relative">
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="font-medium text-sm">{card.name}</div>
-                    {card.description && (
-                      <div className="text-xs text-gray-600 mt-1">
-                        {card.description}
-                      </div>
+    <div className="p-3 bg-white border-t">
+      <div className="flex flex-col items-center space-y-3">
+        {availableCards.length > 0 && (
+          <div className="flex justify-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="justify-between">
+                  Select a city card...
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-white border shadow-lg z-50">
+                {availableCards.map((card) => (
+                  <DropdownMenuItem
+                    key={card.name}
+                    onClick={() => addCityCard(card)}
+                    className="cursor-pointer flex justify-between"
+                  >
+                    <span>{card.name}</span>
+                    {!card.isVariable && (
+                      <span className="text-sm text-gray-500">{card.points} pts</span>
                     )}
-                  </div>
-                  
-                  <div className="flex items-center gap-2 ml-4">
-                    {card.isVariable ? (
-                      <>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+
+        {cityCards.length > 0 && (
+          <div className="space-y-3 w-full">
+            {cityCards.map((card) => (
+              <div key={card.id}>
+                {card.isVariable ? (
+                  // Variable cards: Commerce style - light grey background with description
+                  <div className="border rounded-lg p-3 bg-gray-50">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <div className="font-medium text-sm">{card.name}</div>
+                      <div className="flex items-center gap-1">
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0"
                           onClick={() => adjustCityCard(card.id, -(card.step || 1))}
+                          className="p-1 h-6 w-6 hover:bg-gray-200"
                         >
-                          <Minus className="h-3 w-3" />
+                          <Minus className="w-3 h-3" />
                         </Button>
-                        <span className="min-w-[2rem] text-center font-medium">
-                          {card.score}
-                        </span>
+                        <Input
+                          type="number"
+                          value={card.score || ''}
+                          onChange={(e) => updateCityCard(card.id, parseInt(e.target.value) || 0)}
+                          placeholder="Points"
+                          className="w-16 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          min="0"
+                        />
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0"
                           onClick={() => adjustCityCard(card.id, card.step || 1)}
+                          className="p-1 h-6 w-6 hover:bg-gray-200"
                         >
-                          <Plus className="h-3 w-3" />
+                          <Plus className="w-3 h-3" />
                         </Button>
-                      </>
-                    ) : (
-                      <span className="min-w-[2rem] text-center font-medium">
-                        {card.score}
-                      </span>
-                    )}
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-8 w-8 p-0 ml-2"
-                      onClick={() => removeCityCard(card.id)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeCityCard(card.id)}
+                          className="p-1 h-6 w-6 hover:bg-red-200 ml-1"
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-600">{card.description}</div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+                ) : (
+                  // Fixed cards: Culture style - name with grey shaded points, no border
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-sm font-medium">{card.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm bg-gray-100 px-2 py-1 rounded">{card.score} pts</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeCityCard(card.id)}
+                        className="p-1 h-6 w-6 hover:bg-red-200"
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
 
-      {cityCards.length === 0 && (
-        <div className="text-center text-gray-500 text-sm py-4">
-          No city cards selected
-        </div>
-      )}
+        {cityCards.length === 0 && (
+          <div className="text-center text-gray-500 text-sm py-4">
+            No city cards selected
+          </div>
+        )}
+      </div>
     </div>
   );
 };

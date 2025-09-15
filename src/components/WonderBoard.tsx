@@ -33,6 +33,11 @@ interface MilitaryTokens {
   five: number;
 }
 
+interface DebtTokens {
+  one: number;
+  five: number;
+}
+
 interface ScienceSymbols {
   gear: number;
   tablet: number;
@@ -110,6 +115,10 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
     minusOne: 0,
     one: 0,
     three: 0,
+    five: 0
+  });
+  const [debtTokens, setDebtTokens] = useState<DebtTokens>({
+    one: 0,
     five: 0
   });
   const [scienceSymbols, setScienceSymbols] = useState<ScienceSymbols>({
@@ -372,6 +381,8 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                     onCommerceCardsChange={setCommerceCards}
                     guildsCards={guildsCards}
                     onGuildsCardsChange={setGuildsCards}
+                    debtTokens={debtTokens}
+                    onDebtTokensChange={setDebtTokens}
                     wonderBoard={board}
                     wonderSide={wonderSide}
                     boardStages={boardStages}

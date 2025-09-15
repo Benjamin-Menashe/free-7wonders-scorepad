@@ -3,6 +3,7 @@ import React from 'react';
 import { ScoreCategory, WonderBoard, WonderSide } from '@/types/game';
 import { WealthDetails } from './category-details/WealthDetails';
 import { MilitaryDetails } from './category-details/MilitaryDetails';
+import { DebtDetails } from './category-details/DebtDetails';
 import { ScienceDetails } from './category-details/ScienceDetails';
 import { CultureDetails } from './category-details/CultureDetails';
 import { CommerceDetails } from './category-details/CommerceDetails';
@@ -17,6 +18,8 @@ interface CategoryDetailsProps {
   onCoinsChange?: (coins: number) => void;
   militaryTokens?: MilitaryTokens;
   onMilitaryTokensChange?: (tokens: MilitaryTokens) => void;
+  debtTokens?: DebtTokens;
+  onDebtTokensChange?: (tokens: DebtTokens) => void;
   scienceSymbols?: ScienceSymbols;
   onScienceSymbolsChange?: (symbols: ScienceSymbols) => void;
   cultureCards?: CultureCard[];
@@ -35,6 +38,11 @@ interface MilitaryTokens {
   minusOne: number;
   one: number;
   three: number;
+  five: number;
+}
+
+interface DebtTokens {
+  one: number;
   five: number;
 }
 
@@ -73,6 +81,8 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
   onCoinsChange,
   militaryTokens = { minusOne: 0, one: 0, three: 0, five: 0 },
   onMilitaryTokensChange,
+  debtTokens = { one: 0, five: 0 },
+  onDebtTokensChange,
   scienceSymbols = { gear: 0, tablet: 0, compass: 0 },
   onScienceSymbolsChange,
   cultureCards = [],
@@ -147,11 +157,11 @@ export const CategoryDetails: React.FC<CategoryDetailsProps> = ({
       );
       case 'debt':
         return (
-          <div className="p-3 bg-white border-t">
-            <p className="text-sm text-gray-600">
-              Total debt tokens
-            </p>
-          </div>
+          <DebtDetails
+            debtTokens={debtTokens}
+            onDebtTokensChange={onDebtTokensChange!}
+            onScoreChange={onScoreChange}
+          />
         );
       case 'city':
         return null; // No expansion content for city yet

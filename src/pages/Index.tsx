@@ -263,7 +263,6 @@ const Index = () => {
           summary += `🔶 Wonder: ${player.scores.wonder} | 🪙 Wealth: ${player.scores.wealth} | ⚔️ Military: ${player.scores.military}\n`;
           summary += `🏛️ Culture: ${player.scores.culture} | 🏺 Commerce: ${player.scores.commerce} | 📖 Science: ${player.scores.science} | 👥 Guilds: ${player.scores.guilds}\n`;
           summary += `⬛ Debt: ${player.scores.debt} | 🏰 City: ${player.scores.city}\n`;
-          summary += `⬛ Debt: ${player.scores.debt} | 🏰 City: ${player.scores.city}\n`;
         });
       }
     }

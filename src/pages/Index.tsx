@@ -61,7 +61,7 @@ const Index = () => {
   const [soloPlayerData, setSoloPlayerData] = useState<PlayerData[]>([]);
   const [gameTitle, setGameTitle] = useState('7 Wonders');
   const [allExpanded, setAllExpanded] = useState(false);
-  const [activeTab, setActiveTab] = useState('all-players');
+  const [activeTab, setActiveTab] = useState('solo');
   const { toast } = useToast();
 
   // Initialize with 7 empty boards for "All Players" mode

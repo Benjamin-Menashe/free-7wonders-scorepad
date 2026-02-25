@@ -112,7 +112,7 @@ export const CityDetails: React.FC<CityDetailsProps> = ({
                   <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-white border shadow-lg z-50">
+              <DropdownMenuContent className="bg-white border shadow-lg z-50 max-h-60 overflow-y-auto">
                 {availableCards.map((card) => (
                   <DropdownMenuItem
                     key={card.name}

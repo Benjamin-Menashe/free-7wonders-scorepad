@@ -125,7 +125,7 @@ export const CultureDetails: React.FC<CultureDetailsProps> = ({
                 <ChevronDown className="w-3 h-3" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
+            <DropdownMenuContent className="w-56 max-h-60 overflow-y-auto">
               {availablePredefinedCards.length === 0 ? (
                 <DropdownMenuItem disabled>
                   All cards have been added

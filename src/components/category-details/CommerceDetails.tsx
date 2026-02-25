@@ -105,7 +105,7 @@ export const CommerceDetails: React.FC<CommerceDetailsProps> = ({
                 <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-white border shadow-lg z-50">
+            <DropdownMenuContent className="bg-white border shadow-lg z-50 max-h-60 overflow-y-auto">
               {commerceCardsList.map(cardTemplate => {
                 const isAdded = commerceCards.some(card => card.name === cardTemplate.name);
                 return (

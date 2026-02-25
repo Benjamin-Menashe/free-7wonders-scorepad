@@ -38,7 +38,7 @@ interface PlayerData {
 }
 
 const wonderBoards: WonderBoardType[] = [
-  'alexandria', 'babylon', 'ephesus', 'giza', 'halicarnassus', 'olympia', 'rhodes', 'byzantium', 'petra'
+  'alexandria', 'babylon', 'ephesus', 'giza', 'halicarnassus', 'olympia', 'rhodes', 'byzantium', 'petra', 'greatwall'
 ];
 
 const createEmptyScores = (): Record<ScoreCategory, number> => createDefaultScores();
@@ -53,6 +53,7 @@ const wonderInfo: Record<WonderBoardType, { name: string; description: string }>
   rhodes: { name: 'Rhodos', description: 'The Colossus' },
   byzantium: { name: 'Byzantium', description: 'The Great Church' },
   petra: { name: 'Petra', description: 'The Treasury' },
+  greatwall: { name: 'Great Wall', description: 'The Great Wall' },
   unassigned: { name: 'Add board', description: 'No board selected' },
 };
 

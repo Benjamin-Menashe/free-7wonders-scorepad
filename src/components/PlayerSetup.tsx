@@ -22,6 +22,7 @@ const wonderBoards: { key: WonderBoard; name: string; description: string }[] = 
   { key: 'halicarnassus', name: 'Halicarnassus', description: 'The Mausoleum' },
   { key: 'olympia', name: 'Olympia', description: 'The Statue of Zeus' },
   { key: 'rhodes', name: 'Rhodes', description: 'The Colossus' },
+  { key: 'greatwall', name: 'Great Wall', description: 'The Great Wall' },
 ];
 
 const PlayerSetup: React.FC<PlayerSetupProps> = ({ players, setPlayers, onStartScoring }) => {

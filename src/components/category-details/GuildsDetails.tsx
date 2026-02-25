@@ -66,6 +66,32 @@ const guildsCardsList = [
     name: 'Workers Guild',
     description: '1 point for each brown card your neighbors own',
     step: 1
+  },
+  {
+    name: 'Architects Guild',
+    description: '1 point for each purple card your neighbors own',
+    step: 1
+  },
+  {
+    name: 'Forgers Guild',
+    description: '',
+    step: 5,
+    maxScore: 5
+  },
+  {
+    name: 'Gamers Guild',
+    description: '1 point for every 3 coins your neighbors own',
+    step: 1
+  },
+  {
+    name: 'Shadow Guild',
+    description: '1 point for every black card your neighbors own',
+    step: 1
+  },
+  {
+    name: 'Mourners Guild',
+    description: '1 point for every military victory token your neighbors own',
+    step: 1
   }
 ];
 

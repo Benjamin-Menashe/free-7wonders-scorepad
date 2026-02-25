@@ -160,7 +160,7 @@ export const GuildsDetails: React.FC<GuildsDetailsProps> = ({
                 <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-white border shadow-lg z-50">
+            <DropdownMenuContent className="bg-white border shadow-lg z-50 max-h-60 overflow-y-auto">
               {guildsCardsList.map(cardTemplate => {
                 const isAdded = guildsCards.some(card => card.name === cardTemplate.name);
                 return (

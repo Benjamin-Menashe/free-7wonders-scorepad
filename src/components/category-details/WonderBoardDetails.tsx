@@ -48,6 +48,10 @@ const boardStagePoints: Record<WonderBoard, Record<WonderSide, number[]>> = {
     day: [3, 7, 7],
     night: [3, 14]
   },
+  greatwall: {
+    day: [0, 0, 0, 0],
+    night: [0, 0, 0, 0]
+  },
   unassigned: {
     day: [],
     night: []

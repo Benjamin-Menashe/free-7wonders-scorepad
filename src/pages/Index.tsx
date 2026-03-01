@@ -60,6 +60,7 @@ const wonderInfo: Record<WonderBoardType, { name: string; description: string }>
 const Index = () => {
   const [allPlayersData, setAllPlayersData] = useState<PlayerData[]>([]);
   const [soloPlayerData, setSoloPlayerData] = useState<PlayerData[]>([]);
+  const [dayNightData, setDayNightData] = useState<PlayerData[]>([]);
   const [gameTitle, setGameTitle] = useState('7 Wonders');
   const [allExpanded, setAllExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('solo');
@@ -81,8 +82,8 @@ const Index = () => {
 
   // Check if there's any unsaved data for page protection
   const hasUnsavedData = () => {
-    const players = activeTab === 'all-players' ? allPlayersData : soloPlayerData;
-    return players.some(p => 
+    const allPlayers = [...allPlayersData, ...soloPlayerData, ...dayNightData];
+    return allPlayers.some(p => 
       p.isActive && (
         p.name.trim() !== '' || 
         Object.values(p.scores).some(score => score !== 0)
@@ -93,21 +94,35 @@ const Index = () => {
   usePageProtection(hasUnsavedData());
 
   const getCurrentPlayers = () => {
-    return activeTab === 'all-players' ? allPlayersData : soloPlayerData;
+    if (activeTab === 'all-players') return allPlayersData;
+    if (activeTab === 'day-night') return dayNightData;
+    return soloPlayerData;
   };
 
   const setCurrentPlayers = (players: PlayerData[]) => {
     if (activeTab === 'all-players') {
       setAllPlayersData(players);
+    } else if (activeTab === 'day-night') {
+      setDayNightData(players);
     } else {
       setSoloPlayerData(players);
     }
   };
 
   const updatePlayerName = (playerId: string, name: string) => {
-    setCurrentPlayers(getCurrentPlayers().map(p => 
-      p.id === playerId ? { ...p, name } : p
-    ));
+    if (activeTab === 'day-night') {
+      // Sync name across both day and night boards
+      const player = dayNightData.find(p => p.id === playerId);
+      if (player) {
+        setDayNightData(dayNightData.map(p => 
+          p.board === player.board ? { ...p, name } : p
+        ));
+      }
+    } else {
+      setCurrentPlayers(getCurrentPlayers().map(p => 
+        p.id === playerId ? { ...p, name } : p
+      ));
+    }
   };
 
   const updatePlayerSide = (playerId: string, side: WonderSide) => {
@@ -134,8 +149,13 @@ const Index = () => {
   const removePlayer = (playerId: string) => {
     if (activeTab === 'solo') {
       setSoloPlayerData([]);
+    } else if (activeTab === 'day-night') {
+      // Remove both day and night entries for this board
+      const player = dayNightData.find(p => p.id === playerId);
+      if (player && player.board) {
+        setDayNightData(dayNightData.filter(p => p.board !== player.board));
+      }
     } else {
-      // When removing a player, reset their board to unassigned so it becomes available again
       setCurrentPlayers(getCurrentPlayers().map(p => 
         p.id === playerId ? { ...p, isActive: false, board: 'unassigned' } : p
       ));
@@ -156,7 +176,27 @@ const Index = () => {
   const addSpecificBoard = (boardType: WonderBoardType) => {
     const currentPlayers = getCurrentPlayers();
     
-    if (activeTab === 'solo') {
+    if (activeTab === 'day-night') {
+      // Add two entries: one day, one night
+      const timestamp = Date.now();
+      const dayPlayer: PlayerData = {
+        id: `dn-day-${boardType}-${timestamp}`,
+        name: '',
+        board: boardType,
+        side: 'day' as WonderSide,
+        scores: createEmptyScores(),
+        isActive: true,
+      };
+      const nightPlayer: PlayerData = {
+        id: `dn-night-${boardType}-${timestamp}`,
+        name: '',
+        board: boardType,
+        side: 'night' as WonderSide,
+        scores: createEmptyScores(),
+        isActive: true,
+      };
+      setDayNightData([dayPlayer, nightPlayer]);
+    } else if (activeTab === 'solo') {
       const newPlayer: PlayerData = {
         id: `solo-player-${Date.now()}`,
         name: currentPlayers.length > 0 ? currentPlayers[0].name : '',
@@ -167,7 +207,6 @@ const Index = () => {
       };
       setSoloPlayerData([newPlayer]);
     } else {
-      // Find the first inactive player or one that is unassigned
       const targetPlayer = currentPlayers.find(p => !p.isActive) || 
                           currentPlayers.find(p => p.board === 'unassigned');
       
@@ -195,6 +234,8 @@ const Index = () => {
         resetKey: currentResetKey,
       }));
       setAllPlayersData(initialPlayers);
+    } else if (activeTab === 'day-night') {
+      setDayNightData([]);
     } else {
       setSoloPlayerData([]);
     }
@@ -328,6 +369,12 @@ const Index = () => {
         scores: createEmptyScores(),
         resetKey: currentResetKey,
       })));
+    } else if (activeTab === 'day-night') {
+      setDayNightData(dayNightData.map(p => ({
+        ...p,
+        scores: createEmptyScores(),
+        resetKey: currentResetKey,
+      })));
     } else {
       setSoloPlayerData(soloPlayerData.map(p => ({
         ...p,
@@ -424,9 +471,10 @@ const Index = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
+          <TabsList className="grid w-full grid-cols-3 max-w-md mx-auto">
             <TabsTrigger value="all-players">All Players</TabsTrigger>
             <TabsTrigger value="solo">Solo</TabsTrigger>
+            <TabsTrigger value="day-night">Day & Night</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all-players" className="mt-6">
@@ -733,6 +781,107 @@ const Index = () => {
                 </Button>
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="day-night" className="mt-6">
+            {/* Top Control Buttons for Day & Night */}
+            <div className="flex flex-wrap justify-center gap-3 mb-6">
+              <Button 
+                onClick={toggleExpandAll}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                {allExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {allExpanded ? 'Collapse All' : 'Expand All'}
+              </Button>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="outline"
+                    className="flex items-center gap-2 bg-red-50 hover:bg-red-100 border-red-200 text-red-700"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    New Game
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Start a New Game?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Choose how you want to reset the game. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={resetScores}
+                      className="bg-amber-600 hover:bg-amber-700"
+                    >
+                      Reset Scores Only
+                    </AlertDialogAction>
+                    <AlertDialogAction onClick={startNewGame}>
+                      Complete Reset
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+
+            {/* Day & Night Wonder Boards */}
+            {dayNightData.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-amber-700 text-lg">Select a wonder board to compare Day & Night</p>
+              </div>
+            ) : (
+              <div className="flex justify-center">
+                <div className="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {dayNightData.map(player => (
+                    <WonderBoard
+                      key={`${player.id}-${player.resetKey || 0}`}
+                      board={player.board || 'unassigned'}
+                      playerName={player.name}
+                      wonderSide={player.side}
+                      scores={player.scores}
+                      onNameChange={(name) => updatePlayerName(player.id, name)}
+                      onSideChange={() => {}} // Side is fixed in this mode
+                      onScoreChange={(category, value) => updatePlayerScore(player.id, category, value)}
+                      onRemove={() => removePlayer(player.id)}
+                      isEmpty={player.name.trim() === ''}
+                      forceExpanded={allExpanded}
+                      isUnassigned={player.board === 'unassigned'}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Bottom Control Buttons for Day & Night */}
+            <div className="flex flex-wrap justify-center gap-3 mt-6">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    {dayNightData.length === 0 ? 'Add Board' : 'Change Board'}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {wonderBoards.map(board => (
+                    <DropdownMenuItem 
+                      key={board}
+                      onClick={() => addSpecificBoard(board)}
+                      disabled={dayNightData.length > 0 && dayNightData[0].board === board}
+                    >
+                      {wonderInfo[board].name}
+                      {dayNightData.length > 0 && dayNightData[0].board === board && ' (Current)'}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </TabsContent>
         </Tabs>
 

@@ -329,6 +329,47 @@ const Index = () => {
     });
   };
 
+  const copyDayNightSummary = () => {
+    const dayPlayer = dayNightData.find(p => p.side === 'day');
+    const nightPlayer = dayNightData.find(p => p.side === 'night');
+    if (!dayPlayer || !nightPlayer) return;
+
+    const boardName = dayPlayer.board ? wonderInfo[dayPlayer.board].name : 'Unknown';
+    const playerName = dayPlayer.name || 'Player';
+    const dayTotal = calculateTotalScore(dayPlayer.scores);
+    const nightTotal = calculateTotalScore(nightPlayer.scores);
+    const combined = dayTotal + nightTotal;
+
+    let summary = `🏛️ 7 Wonders Day & Night Summary 🏛️\n\n`;
+    summary += `${playerName} - ${boardName}\n`;
+    summary += `Combined Score: ${combined} points\n\n`;
+    summary += `☀️ Day Side: ${dayTotal} points\n`;
+    summary += `🔶 Wonder: ${dayPlayer.scores.wonder} | 🪙 Wealth: ${dayPlayer.scores.wealth} | ⚔️ Military: ${dayPlayer.scores.military}\n`;
+    summary += `🏛️ Culture: ${dayPlayer.scores.culture} | 🏺 Commerce: ${dayPlayer.scores.commerce} | 📖 Science: ${dayPlayer.scores.science} | 👥 Guilds: ${dayPlayer.scores.guilds}\n`;
+    summary += `⬛ Debt: ${dayPlayer.scores.debt} | 🏰 City: ${dayPlayer.scores.city}\n\n`;
+    summary += `🌙 Night Side: ${nightTotal} points\n`;
+    summary += `🔶 Wonder: ${nightPlayer.scores.wonder} | 🪙 Wealth: ${nightPlayer.scores.wealth} | ⚔️ Military: ${nightPlayer.scores.military}\n`;
+    summary += `🏛️ Culture: ${nightPlayer.scores.culture} | 🏺 Commerce: ${nightPlayer.scores.commerce} | 📖 Science: ${nightPlayer.scores.science} | 👥 Guilds: ${nightPlayer.scores.guilds}\n`;
+    summary += `⬛ Debt: ${nightPlayer.scores.debt} | 🏰 City: ${nightPlayer.scores.city}\n`;
+    summary += `\n--- Created with 7 Wonders Digital Scorepad by Benjamin Menashe ---\n`;
+    summary += `https://free-7wonders-scorepad.lovable.app/`;
+
+    navigator.clipboard.writeText(summary).then(() => {
+      toast({
+        title: "Game summary copied!",
+        description: "The Day & Night summary has been copied to your clipboard.",
+        duration: 1000,
+      });
+    }).catch(() => {
+      toast({
+        title: "Copy failed",
+        description: "Unable to copy to clipboard. Please try again.",
+        variant: "destructive",
+        duration: 1000,
+      });
+    });
+  };
+
   const removeEmptyBoards = () => {
     if (activeTab === 'all-players') {
       // Count boards that are unassigned
@@ -856,6 +897,27 @@ const Index = () => {
               </div>
             )}
 
+            {/* Cumulative Score */}
+            {dayNightData.length > 0 && (() => {
+              const dayPlayer = dayNightData.find(p => p.side === 'day');
+              const nightPlayer = dayNightData.find(p => p.side === 'night');
+              const dayTotal = dayPlayer ? calculateTotalScore(dayPlayer.scores) : 0;
+              const nightTotal = nightPlayer ? calculateTotalScore(nightPlayer.scores) : 0;
+              const combined = dayTotal + nightTotal;
+              return (
+                <div className="flex justify-center mt-4">
+                  <div className="bg-gradient-to-r from-blue-100 via-amber-50 to-slate-800 rounded-lg p-4 text-center w-full max-w-2xl">
+                    <div className="text-sm font-medium text-amber-800 mb-1">Combined Score</div>
+                    <div className="flex items-center justify-center gap-4">
+                      <span className="text-sm text-slate-600">☀️ {dayTotal}</span>
+                      <span className="text-3xl font-bold text-amber-900">{combined}</span>
+                      <span className="text-sm text-slate-400">🌙 {nightTotal}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Bottom Control Buttons for Day & Night */}
             <div className="flex flex-wrap justify-center gap-3 mt-6">
               <DropdownMenu>
@@ -882,6 +944,20 @@ const Index = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+
+            {/* Copy Game Summary for Day & Night */}
+            {dayNightData.length > 0 && dayNightData.some(p => p.name.trim() !== '') && (
+              <div className="flex justify-center mt-8 bg-gray-100 p-3 rounded-lg">
+                <Button 
+                  onClick={() => copyDayNightSummary()}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <Copy className="w-4 h-4" />
+                  Copy Game Summary
+                </Button>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
 

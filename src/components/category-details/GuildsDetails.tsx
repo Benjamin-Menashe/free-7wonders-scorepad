@@ -68,28 +68,28 @@ const guildsCardsList = [
     step: 1
   },
   {
-    name: 'Architects Guild',
+    name: 'Η ΤΩΝ ΑΡΧΙΤΕΚΤΟΝΩΝ ΕΤΑΙΡΙΑ (Architects Guild)',
     description: '1 point for each purple card your neighbors own',
     step: 1
   },
   {
-    name: 'Forgers Guild',
+    name: 'Societas Adulteratorum Monetae (Forgers Guild)',
     description: '',
     step: 5,
     maxScore: 5
   },
   {
-    name: 'Gamers Guild',
+    name: 'Η ΤΩΝ ΠΑΙΖΟΝΤΩΝ ΕΤΑΙΡΙΑ (Gamers Guild)',
     description: '1 point for every 3 coins your neighbors own',
     step: 1
   },
   {
-    name: 'Shadow Guild',
+    name: 'Societas Umbrarum (Shadow Guild)',
     description: '1 point for every black card your neighbors own',
     step: 1
   },
   {
-    name: 'Mourners Guild',
+    name: 'Societas Praeficarum (Mourners Guild)',
     description: '1 point for every military victory token your neighbors own',
     step: 1
   }

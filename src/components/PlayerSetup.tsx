@@ -17,11 +17,11 @@ interface PlayerSetupProps {
 const wonderBoards: { key: WonderBoard; name: string; description: string }[] = [
   { key: 'alexandria', name: 'Alexandria', description: 'The Great Library' },
   { key: 'babylon', name: 'Babylon', description: 'The Hanging Gardens' },
-  { key: 'ephesus', name: 'Ephesus', description: 'The Temple of Artemis' },
-  { key: 'giza', name: 'Giza', description: 'The Great Pyramid' },
-  { key: 'halicarnassus', name: 'Halicarnassus', description: 'The Mausoleum' },
-  { key: 'olympia', name: 'Olympia', description: 'The Statue of Zeus' },
-  { key: 'rhodes', name: 'Rhodes', description: 'The Colossus' },
+  { key: 'ephesus', name: 'Éphesos', description: 'The Temple of Artemis' },
+  { key: 'giza', name: 'Gizah', description: 'The Great Pyramid' },
+  { key: 'halicarnassus', name: 'Halikarnassos', description: 'The Mausoleum' },
+  { key: 'olympia', name: 'Olympía', description: 'The Statue of Zeus' },
+  { key: 'rhodes', name: 'Rhódos', description: 'The Colossus' },
   { key: 'greatwall', name: 'Great Wall', description: 'The Great Wall' },
 ];
 

@@ -60,6 +60,14 @@ export const DebtDetails: React.FC<DebtDetailsProps> = ({
                   onDebtTokensChange(newTokens);
                   calculateDebtScore(newTokens);
                 }}
+                onBlur={(e) => {
+                  const value = parseInt(e.target.value) || 0;
+                  if (value < 0) {
+                    const newTokens = { ...debtTokens, [type]: Math.abs(value) };
+                    onDebtTokensChange(newTokens);
+                    calculateDebtScore(newTokens);
+                  }
+                }}
                 className="w-16 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 min="0"
               />

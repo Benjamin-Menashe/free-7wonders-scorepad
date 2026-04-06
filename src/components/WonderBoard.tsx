@@ -347,6 +347,14 @@ const WonderBoard: React.FC<WonderBoardProps> = ({
                       value={scores[category.key] || ''}
                       onChange={(e) => handleScoreChange(category.key, e.target.value)}
                       onKeyDown={handleInputKeyDown}
+                      onBlur={(e) => {
+                        if (category.key === 'debt') {
+                          const val = parseInt(e.target.value) || 0;
+                          if (val > 0) {
+                            onScoreChange(category.key, -val);
+                          }
+                        }
+                      }}
                       placeholder="0"
                       className={`w-12 text-center h-6 text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${category.key === 'city' ? 'bg-white text-black' : ''}`}
                       min={category.key === 'military' || category.key === 'city' ? undefined : category.key === 'debt' ? undefined : "0"}

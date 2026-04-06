@@ -80,8 +80,9 @@ const guildsCardsList = [
   },
   {
     name: 'Η ΤΩΝ ΠΑΙΖΟΝΤΩΝ ΕΤΑΙΡΙΑ (Gamers Guild)',
-    description: '1 point for every 3 coins your neighbors own',
-    step: 1
+    description: '1 point for every 3 coins your neighbors own (max 10 points)',
+    step: 1,
+    maxScore: 10
   },
   {
     name: 'Societas Umbrarum (Shadow Guild)',

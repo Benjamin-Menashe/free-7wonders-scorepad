@@ -53,23 +53,23 @@ export const DebtDetails: React.FC<DebtDetailsProps> = ({
               </Button>
               <Input
                 type="number"
-                value={debtTokens[type] || ''}
+                value={debtTokens[type] ? -debtTokens[type] : ''}
                 onChange={(e) => {
-                  const value = parseInt(e.target.value) || 0;
-                  const newTokens = { ...debtTokens, [type]: Math.max(0, value) };
+                  const raw = parseInt(e.target.value) || 0;
+                  const newTokens = { ...debtTokens, [type]: Math.abs(raw) };
                   onDebtTokensChange(newTokens);
                   calculateDebtScore(newTokens);
                 }}
                 onBlur={(e) => {
-                  const value = parseInt(e.target.value) || 0;
-                  if (value < 0) {
-                    const newTokens = { ...debtTokens, [type]: Math.abs(value) };
+                  const raw = parseInt(e.target.value) || 0;
+                  if (raw > 0) {
+                    const newTokens = { ...debtTokens, [type]: raw };
                     onDebtTokensChange(newTokens);
                     calculateDebtScore(newTokens);
                   }
                 }}
                 className="w-16 h-6 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                min="0"
+                max="0"
               />
               <Button
                 variant="ghost"

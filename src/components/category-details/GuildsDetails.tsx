@@ -69,8 +69,8 @@ const guildsCardsList = [
   },
   {
     name: 'Η ΤΩΝ ΑΡΧΙΤΕΚΤΟΝΩΝ ΕΤΑΙΡΙΑ (Architects Guild)',
-    description: '1 point for each purple card your neighbors own',
-    step: 1
+    description: '3 points for every purple card your neighbors own',
+    step: 3
   },
   {
     name: 'Societas Adulteratorum Monetae (Forgers Guild)',
